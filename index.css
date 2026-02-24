@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00A8C5;
+  --color-primary-dark: #008AA3;
+  
+  --color-bg-main: var(--bg-main);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-main: var(--border-main);
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+}
+
+:root {
+  --bg-main: #F0F7F9;
+  --surface: #FFFFFF;
+  --surface-muted: #F9FAFB;
+  --text-main: #1A3B4A;
+  --text-muted: #6B7280;
+  --border-main: #E5E7EB;
+}
+
+.dark {
+  --bg-main: #0D1B22;
+  --surface: #162931;
+  --surface-muted: #1A313A;
+  --text-main: #F9FAFB;
+  --text-muted: #9CA3AF;
+  --border-main: #2D3748;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-main text-text-main antialiased transition-colors duration-300;
+  }
+
+  input {
+    @apply text-text-main bg-surface border-border-main;
+  }
+
+  /* Large Text Mode */
+  .large-text {
+    font-size: 1.25rem; /* Base increase */
+  }
+
+  .large-text h1 { @apply text-5xl md:text-7xl; }
+  .large-text h2 { @apply text-3xl; }
+  .large-text h3 { @apply text-2xl; }
+  .large-text p, 
+  .large-text li, 
+  .large-text span, 
+  .large-text button,
+  .large-text input { @apply text-xl; }
+  
+  .large-text .text-xs { @apply text-sm; }
+  .large-text .text-sm { @apply text-base; }
+  .large-text .text-base { @apply text-lg; }
+  .large-text .text-lg { @apply text-xl; }
+  .large-text .text-xl { @apply text-2xl; }
+  .large-text .text-2xl { @apply text-3xl; }
+
+  /* Markdown Styling */
+  .markdown-body {
+    @apply text-inherit;
+  }
+  .markdown-body ul {
+    @apply list-disc list-inside space-y-2;
+  }
+  .markdown-body ol {
+    @apply list-decimal list-inside space-y-2;
+  }
+  .markdown-body p {
+    @apply mb-4;
+  }
+  .markdown-body strong {
+    @apply font-bold text-inherit;
+  }
+  .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    @apply font-bold mb-2;
+  }
+
+  /* Utility Classes */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  .card-premium {
+    @apply bg-surface rounded-3xl shadow-xl shadow-cyan-900/5 border border-border-main backdrop-blur-sm;
+  }
+  
+  .pill-button {
+    @apply rounded-full px-8 py-4 font-bold transition-all active:scale-95 shadow-lg;
+  }
+}
