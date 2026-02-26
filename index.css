@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #00A8C5;
-  --color-primary-dark: #008AA3;
+  --color-primary: #6C63FF;
+  --color-primary-dark: #5A52E0;
+  --color-secondary: #F4A5AE;
+  --color-tertiary: #FAD4C0;
+  --color-destructive: #EF5350;
   
   --color-bg-main: var(--bg-main);
   --color-surface: var(--surface);
@@ -13,27 +16,27 @@
   
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
-  --radius-3xl: 2.5rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
 }
 
 :root {
-  --bg-main: #F0F7F9;
+  --bg-main: #EEE9F8;
   --surface: #FFFFFF;
-  --surface-muted: #F9FAFB;
-  --text-main: #1A3B4A;
-  --text-muted: #6B7280;
-  --border-main: #E5E7EB;
+  --surface-muted: #D6D0F5;
+  --text-main: #1A1A2E;
+  --text-muted: #4B5563;
+  --border-main: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  --bg-main: #0D1B22;
-  --surface: #162931;
-  --surface-muted: #1A313A;
-  --text-main: #F9FAFB;
+  --bg-main: #1A1A2E;
+  --surface: #252545;
+  --surface-muted: #30305A;
+  --text-main: #EEE9F8;
   --text-muted: #9CA3AF;
-  --border-main: #2D3748;
+  --border-main: rgba(255, 255, 255, 0.1);
 }
 
 @layer base {
@@ -42,7 +45,27 @@
   }
 
   input {
-    @apply text-text-main bg-surface border-border-main;
+    @apply text-text-main bg-surface border-border-main rounded-xl;
+  }
+
+  h1 {
+    @apply font-black text-[24px] md:text-[28px] text-text-main;
+  }
+
+  h2 {
+    @apply font-bold text-[18px] md:text-[20px] text-text-main;
+  }
+
+  h3 {
+    @apply font-bold text-[16px] md:text-[18px] text-text-main;
+  }
+
+  p, li, label {
+    @apply text-[14px] text-text-muted;
+  }
+
+  span {
+    @apply text-inherit;
   }
 
   /* Large Text Mode */
@@ -50,9 +73,9 @@
     font-size: 1.25rem; /* Base increase */
   }
 
-  .large-text h1 { @apply text-5xl md:text-7xl; }
-  .large-text h2 { @apply text-3xl; }
-  .large-text h3 { @apply text-2xl; }
+  .large-text h1 { @apply text-4xl md:text-5xl; }
+  .large-text h2 { @apply text-2xl; }
+  .large-text h3 { @apply text-xl; }
   .large-text p, 
   .large-text li, 
   .large-text span, 
@@ -98,10 +121,10 @@
 
 @layer components {
   .card-premium {
-    @apply bg-surface rounded-3xl shadow-xl shadow-cyan-900/5 border border-border-main backdrop-blur-sm;
+    @apply bg-surface rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-border-main backdrop-blur-sm;
   }
   
   .pill-button {
-    @apply rounded-full px-8 py-4 font-bold transition-all active:scale-95 shadow-lg;
+    @apply rounded-full px-8 py-4 font-bold transition-all active:scale-95 shadow-lg bg-primary text-white;
   }
 }

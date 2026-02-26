@@ -54,47 +54,47 @@ const HSIGuide: React.FC = () => {
   ];
 
   return (
-    <div className="p-5 md:p-8">
-      <h2 className="text-xl md:text-2xl font-extrabold mb-2 text-text-main">T-Mobile Home Internet</h2>
-      <p className="mb-6 md:mb-8 text-text-muted text-sm md:text-base">Get your home Wi-Fi up and running in minutes.</p>
+    <div className="p-6 md:p-10">
+      <h2 className="text-2xl md:text-[28px] font-bold mb-2 text-text-main">T-Mobile Home Internet</h2>
+      <p className="mb-8 md:mb-10 text-text-muted text-sm md:text-base font-medium">Get your home Wi-Fi up and running in minutes.</p>
 
-      <section className="mb-10 md:mb-12">
-        <h3 className="text-lg md:text-xl font-bold text-text-main mb-5 flex items-center gap-2">
-          <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+      <section className="mb-12 md:mb-16">
+        <h3 className="text-xl md:text-2xl font-bold text-text-main mb-6 flex items-center gap-3">
+          <span className="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center text-sm font-black">1</span>
           Setup Guide
         </h3>
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-6 md:space-y-8">
           {setupSteps.map((step, index) => (
-            <div key={index} className="flex gap-4 items-start group">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-surface-muted rounded-xl flex items-center justify-center text-xl md:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform border border-border-main">
+            <div key={index} className="flex gap-5 items-start group">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl flex items-center justify-center text-xl md:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform border border-border-main">
                 {step.icon}
               </div>
               <div>
-                <h4 className="font-bold text-text-main text-base md:text-lg">{step.title}</h4>
-                <p className="text-sm md:text-base text-text-muted leading-relaxed">{step.description}</p>
+                <h4 className="font-bold text-text-main text-lg md:text-xl mb-1">{step.title}</h4>
+                <p className="text-sm md:text-base text-text-muted leading-relaxed font-medium">{step.description}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mb-10 md:mb-12">
-        <h3 className="text-lg md:text-xl font-bold text-text-main mb-5 flex items-center gap-2">
-          <span className="bg-emerald-500/10 text-emerald-500 w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+      <section className="mb-12 md:mb-16">
+        <h3 className="text-xl md:text-2xl font-bold text-text-main mb-6 flex items-center gap-3">
+          <span className="bg-[#D6D0F5]/50 text-primary w-8 h-8 rounded-full flex items-center justify-center text-sm font-black">2</span>
           Speed Optimization
         </h3>
-        <div className="bg-emerald-500/5 p-5 md:p-6 rounded-2xl border border-emerald-500/10">
-          <ul className="space-y-3">
-            <li className="flex gap-3 text-sm md:text-base">
-              <span className="text-emerald-500 font-bold">✓</span>
+        <div className="bg-[#D6D0F5]/30 p-6 md:p-8 rounded-[2rem] border border-border-main shadow-sm">
+          <ul className="space-y-4">
+            <li className="flex gap-4 text-sm md:text-base font-medium">
+              <span className="text-primary font-black">✓</span>
               <span className="text-text-main"><strong>Use Mesh Devices:</strong> If you have a large home, mesh access points can bring Wi-Fi to every corner and even outdoors.</span>
             </li>
-            <li className="flex gap-3 text-sm md:text-base">
-              <span className="text-emerald-500 font-bold">✓</span>
+            <li className="flex gap-4 text-sm md:text-base font-medium">
+              <span className="text-primary font-black">✓</span>
               <span className="text-text-main"><strong>Check for Malware:</strong> Run regular antispyware and antivirus checks to ensure malicious software isn't hogging your bandwidth.</span>
             </li>
-            <li className="flex gap-3 text-sm md:text-base">
-              <span className="text-emerald-500 font-bold">✓</span>
+            <li className="flex gap-4 text-sm md:text-base font-medium">
+              <span className="text-primary font-black">✓</span>
               <span className="text-text-main"><strong>Wi-Fi 6:</strong> Ensure your gateway supports Wi-Fi 6 technology for the fastest possible connection with modern devices.</span>
             </li>
           </ul>
@@ -102,17 +102,17 @@ const HSIGuide: React.FC = () => {
       </section>
 
       <section>
-        <h3 className="text-lg md:text-xl font-bold text-text-main mb-5 flex items-center gap-2">
-          <span className="bg-rose-500/10 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+        <h3 className="text-xl md:text-2xl font-bold text-text-main mb-6 flex items-center gap-3">
+          <span className="bg-[#F4A5AE]/50 text-secondary-dark w-8 h-8 rounded-full flex items-center justify-center text-sm font-black">3</span>
           Troubleshooting
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {troubleshootingTips.map((tip, index) => (
-            <div key={index} className="p-4 md:p-5 bg-surface-muted rounded-xl md:rounded-2xl border border-border-main hover:bg-surface hover:shadow-lg hover:shadow-cyan-900/5 transition-all">
-              <h4 className="font-bold text-rose-500 text-sm md:text-base mb-2 flex items-center gap-2">
+            <div key={index} className="p-6 md:p-8 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-border-main hover:bg-bg-main transition-all">
+              <h4 className="font-bold text-secondary-dark text-base md:text-lg mb-3 flex items-center gap-2">
                 <span>❓</span> {tip.issue}
               </h4>
-              <p className="text-xs md:text-sm text-text-muted leading-relaxed">
+              <p className="text-sm md:text-base text-text-muted leading-relaxed font-medium">
                 <strong className="text-text-main">Fix:</strong> {tip.solution}
               </p>
             </div>
@@ -120,11 +120,11 @@ const HSIGuide: React.FC = () => {
         </div>
       </section>
 
-      <div className="mt-8 p-5 md:p-6 bg-primary/10 rounded-xl md:rounded-2xl border border-primary/20 flex items-center gap-4">
-        <div className="text-2xl md:text-3xl">📞</div>
+      <div className="mt-10 md:mt-12 p-6 md:p-8 bg-primary/10 rounded-2xl border border-border-main flex items-center gap-6 shadow-sm">
+        <div className="text-3xl md:text-4xl">📞</div>
         <div>
-          <h4 className="font-bold text-primary text-sm md:text-base">Still stuck?</h4>
-          <p className="text-xs md:text-sm text-text-muted">Call T-Mobile support at <strong className="text-primary">1-844-275-9310</strong></p>
+          <h4 className="font-bold text-primary text-lg md:text-xl mb-1">Still stuck?</h4>
+          <p className="text-sm md:text-base text-text-muted font-medium">Call T-Mobile support at <strong className="text-primary">1-844-275-9310</strong></p>
         </div>
       </div>
     </div>
