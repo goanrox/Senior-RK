@@ -200,3 +200,4 @@ const AppChecker: React.FC<AppCheckerProps> = ({ selectedDevice }) => {
 };
 
 export default AppChecker;
+
