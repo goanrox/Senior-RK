@@ -45,7 +45,11 @@ const LinkCheck: React.FC = () => {
         urlToCheck = 'http://' + urlToCheck;
       }
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : "");
+      if (!apiKey) {
+        console.error('API key missing');
+      }
+      const ai = new GoogleGenAI({ apiKey: apiKey || "" });
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
