@@ -150,7 +150,7 @@ const LinkCheck: React.FC = () => {
           disabled={loading}
           className="w-full py-4 md:py-5 px-6 bg-primary text-white font-bold rounded-full shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 disabled:opacity-50 text-base md:text-lg"
         >
-          {loading ? 'Checking...' : 'Check This Link'}
+          {loading ? 'Checking...' : 'Verify the link'}
         </button>
       </div>
 
