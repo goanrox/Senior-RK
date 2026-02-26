@@ -12,7 +12,7 @@ import PhoneSearch from './components/PhoneSearch';
 import HSIGuide from './components/HSIGuide';
 import FBSafety from './components/FBSafety';
 import LinkCheck from './components/LinkCheck';
-import { hapticFeedback } from './src/utils/haptics';
+import { hapticFeedback } from './utils/haptics';
 
 const App: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceBrand | null>(null);
