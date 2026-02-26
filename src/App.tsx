@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { DeviceBrand } from './types';
 import { DEVICE_INSTRUCTIONS } from './constants';
 import Button from './components/Button';
-import RescueGuide from './components/RescueGuide';
+
 import AppChecker from './components/AppChecker';
 import AdBlockerInfo from './components/AdBlockerInfo';
 import PerformanceTips from './components/PerformanceTips';
