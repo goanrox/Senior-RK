@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+
 import { hapticFeedback } from '../utils/haptics';
 
 const PhoneSearch: React.FC = () => {
