@@ -5,8 +5,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undef
 if (!apiKey) {
   console.error('API key missing');
 }
-const ai = new GoogleGenAI({ apiKey: apiKey || "" });
-
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 export const checkAppSafety = async (appName: string) => {
   try {
     const response = await ai.models.generateContent({
