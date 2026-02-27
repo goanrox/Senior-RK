@@ -20,7 +20,8 @@ const handleShare = async () => {
 
 if (!result) return;
 
-const shareData = { title: `Senior Guide for ${query}`, text: result, url: window.location.href };
+const shareData = { title: `Senior Guide for ${query}`,
+ text: result, url: window.location.href };
 
 try {
 
