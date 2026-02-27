@@ -1,13 +1,13 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : "");
-if (!apiKey) {
-  console.error('API key missing');
-}
-const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+import { getGeminiApiKey } from "../utils/apiKey";
 
 export const checkAppSafety = async (appName: string) => {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) return null;
+  
+  const ai = new GoogleGenAI({ apiKey });
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",

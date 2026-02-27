@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
+import { getGeminiApiKey } from "../utils/apiKey";
 import { hapticFeedback } from '../utils/haptics';
 
 type ResultType = 'safe' | 'dangerous' | 'unknown' | null;
@@ -45,11 +46,12 @@ const LinkCheck: React.FC = () => {
         urlToCheck = 'http://' + urlToCheck;
       }
 
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : "");
+      const apiKey = getGeminiApiKey();
       if (!apiKey) {
-        console.error('API key missing');
+        setError("API key is missing. Please configure the application.");
+        return;
       }
-      const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+      const ai = new GoogleGenAI({ apiKey });
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
