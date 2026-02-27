@@ -1,42 +1,19 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
-import { getGeminiApiKey } from "../utils/apiKey";
-
 export const checkAppSafety = async (appName: string) => {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) return null;
-  
-  const ai = new GoogleGenAI({ apiKey });
-
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Analyze the safety of the Android app: "${appName}". 
-      Determine if it's safe, a warning (potentially unwanted, excessive ads), or danger (malware, scam).
-      Provide a safety score from 0 to 100 (100 being perfectly safe).
-      Suggest a safe alternative if the app is not safe.`,
-      config: {
-        tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            name: { type: Type.STRING },
-            status: { 
-              type: Type.STRING, 
-              enum: ["safe", "warning", "danger"] 
-            },
-            reason: { type: Type.STRING },
-            alternative: { type: Type.STRING },
-            score: { type: Type.NUMBER }
-          },
-          required: ["name", "status", "reason", "score"]
-        }
-      }
+    // We now ask our own secure Vercel backend instead of Google directly
+    const response = await fetch('/api/checkApp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appName })
     });
 
-    if (response.text) {
-      return JSON.parse(response.text.trim());
+    const data = await response.json();
+    const text = data.text;
+
+    if (text) {
+      // Clean and return the JSON just like before
+      const cleanText = text.replace(/```json|```/g, "").trim();
+      return JSON.parse(cleanText);
     }
     return null;
   } catch (error) {
