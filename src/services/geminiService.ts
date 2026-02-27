@@ -3,13 +3,14 @@ import { GoogleGenAI } from "@google/genai";
 // 1. Setup the Key
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-// 2. Initialize the AI with the correct name
+// 2. Initialize the AI (using the name 'ai')
 const ai = new GoogleGenAI(apiKey);
+
 export const checkAppSafety = async (appName: string) => {
   try {
-    // 3. Use the 'genAI' variable we created above
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash", // Use a stable model name
+    // 3. Use the 'ai' variable we created in step 2
+    const model = ai.getGenerativeModel({ 
+      model: "gemini-1.5-flash", 
     });
 
     const prompt = `Analyze the safety of the Android app: "${appName}". 
@@ -18,11 +19,10 @@ export const checkAppSafety = async (appName: string) => {
       Suggest a safe alternative if the app is not safe. Return as JSON.`;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // With @google/genai, you can get text directly from the result
+    const text = result.response.text();
 
     if (text) {
-      // Clean the text in case it includes markdown backticks
       const cleanText = text.replace(/```json|```/g, "").trim();
       return JSON.parse(cleanText);
     }
