@@ -1,11 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 // 1. Setup the Key
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 // 2. Initialize the AI with the correct name
-const genAI = new GoogleGenerativeAI(apiKey);
-
+const ai = new GoogleGenAI(apiKey);
 export const checkAppSafety = async (appName: string) => {
   try {
     // 3. Use the 'genAI' variable we created above
