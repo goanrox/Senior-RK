@@ -12,6 +12,7 @@ import PhoneSearch from './components/PhoneSearch';
 import HSIGuide from './components/HSIGuide';
 import FBSafety from './components/FBSafety';
 import LinkCheck from './components/LinkCheck';
+import ScamAlerts from './components/ScamAlerts';
 import { hapticFeedback } from './utils/haptics';
 
 const App: React.FC = () => {
@@ -19,7 +20,7 @@ const App: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLargeText, setIsLargeText] = useState(false);
-  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck'>('checker');
+  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts'>('checker');
 
   React.useEffect(() => {
     if (isDarkMode) {
@@ -55,7 +56,7 @@ const App: React.FC = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck') => {
+  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts') => {
     hapticFeedback.light();
     setActiveTool(tool);
   };
@@ -218,6 +219,14 @@ const App: React.FC = () => {
               >
                 Link Check
               </button>
+              <button 
+                onClick={() => handleToolChange('scamalerts')}
+                className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap flex items-center justify-center gap-2 ${
+                  activeTool === 'scamalerts' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
+                }`}
+              >
+                <span>🚨</span> Scam Alerts
+              </button>
             </div>
             <div className="p-0">
               {activeTool === 'checker' && <AppChecker selectedDevice={selectedDevice} />}
@@ -227,6 +236,7 @@ const App: React.FC = () => {
               {activeTool === 'hsi' && <HSIGuide />}
               {activeTool === 'fbsafety' && <FBSafety />}
               {activeTool === 'linkcheck' && <LinkCheck />}
+              {activeTool === 'scamalerts' && <ScamAlerts />}
             </div>
           </div>
         </div>
