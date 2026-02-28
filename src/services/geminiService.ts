@@ -1,8 +1,13 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import { getGeminiApiKey } from "../utils/apiKey";
+import { searchCache } from "../utils/cache";
 
 export const checkAppSafety = async (appName: string) => {
+  const cacheKey = `app-safety-${appName.toLowerCase().trim()}`;
+  const cachedResult = searchCache.get(cacheKey);
+  if (cachedResult) return cachedResult;
+
   const apiKey = getGeminiApiKey();
   if (!apiKey) return null;
   
@@ -11,11 +16,12 @@ export const checkAppSafety = async (appName: string) => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Analyze the safety of the Android app: "${appName}". 
-      Determine if it's safe, a warning (potentially unwanted, excessive ads), or danger (malware, scam).
-      Provide a safety score from 0 to 100 (100 being perfectly safe).
-      Suggest a safe alternative if the app is not safe.`,
+      contents: `Quickly analyze Android app safety: "${appName}". 
+      Status: safe, warning (ads/bloat), or danger (malware/scam).
+      Score: 0-100.
+      Suggest 1 safe alternative if not safe.`,
       config: {
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
         tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: {
@@ -36,7 +42,9 @@ export const checkAppSafety = async (appName: string) => {
     });
 
     if (response.text) {
-      return JSON.parse(response.text.trim());
+      const result = JSON.parse(response.text.trim());
+      searchCache.set(cacheKey, result);
+      return result;
     }
     return null;
   } catch (error) {

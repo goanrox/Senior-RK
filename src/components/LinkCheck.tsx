@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import { getGeminiApiKey } from "../utils/apiKey";
+import { searchCache } from "../utils/cache";
 import { hapticFeedback } from '../utils/haptics';
 
 type ResultType = 'safe' | 'dangerous' | 'unknown' | null;
@@ -39,6 +40,25 @@ const LinkCheck: React.FC = () => {
     setThreatType(null);
     hapticFeedback.light();
 
+    const cacheKey = `link-check-${url.toLowerCase().trim()}`;
+    const cachedResult = searchCache.get<any>(cacheKey);
+    if (cachedResult) {
+      if (cachedResult.status === 'dangerous') {
+        setResult('dangerous');
+        setThreatType(cachedResult.threatType || 'Suspicious Website');
+        hapticFeedback.warning();
+      } else if (cachedResult.status === 'safe') {
+        setResult('safe');
+        hapticFeedback.success();
+      } else {
+        setResult('unknown');
+        hapticFeedback.warning();
+      }
+      return;
+    }
+
+    setLoading(true);
+
     try {
       // Ensure URL has protocol for the API
       let urlToCheck = url.trim();
@@ -55,11 +75,11 @@ const LinkCheck: React.FC = () => {
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `Analyze this URL for safety: ${urlToCheck}. 
-        Use Google Search to check if this domain is known for scams, malware, phishing, or is a legitimate website.
-        Determine if it is 'safe', 'dangerous', or 'unknown'.
-        If it is dangerous, provide a short threat type like 'Phishing', 'Malware', 'Scam', etc.`,
+        contents: `Quickly check URL safety: ${urlToCheck}. 
+        Status: safe, dangerous, or unknown.
+        Threat: If dangerous, name the threat (e.g., Phishing).`,
         config: {
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
           tools: [{ googleSearch: {} }],
           responseMimeType: "application/json",
           responseSchema: {
@@ -85,6 +105,7 @@ const LinkCheck: React.FC = () => {
       }
 
       const data = JSON.parse(responseText);
+      searchCache.set(cacheKey, data);
 
       if (data.status === 'dangerous') {
         setResult('dangerous');

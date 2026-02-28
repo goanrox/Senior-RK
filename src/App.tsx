@@ -13,6 +13,7 @@ import HSIGuide from './components/HSIGuide';
 import FBSafety from './components/FBSafety';
 import LinkCheck from './components/LinkCheck';
 import ScamAlerts from './components/ScamAlerts';
+import SafeGames from './components/SafeGames';
 import { hapticFeedback } from './utils/haptics';
 
 const App: React.FC = () => {
@@ -20,7 +21,7 @@ const App: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLargeText, setIsLargeText] = useState(false);
-  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts'>('checker');
+  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games'>('checker');
 
   React.useEffect(() => {
     if (isDarkMode) {
@@ -56,7 +57,7 @@ const App: React.FC = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts') => {
+  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games') => {
     hapticFeedback.light();
     setActiveTool(tool);
   };
@@ -161,7 +162,7 @@ const App: React.FC = () => {
           )}
 
           {/* Tool Tabs for Mobile Optimization */}
-          <div className="bg-surface rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-border-main overflow-hidden">
+          <div id="tool-tabs" className="bg-surface rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-border-main overflow-hidden">
             <div className="flex border-b border-border-main bg-bg-main overflow-x-auto no-scrollbar p-1">
               <button 
                 onClick={() => handleToolChange('checker')}
@@ -227,6 +228,14 @@ const App: React.FC = () => {
               >
                 <span>🚨</span> Scam Alerts
               </button>
+              <button 
+                onClick={() => handleToolChange('games')}
+                className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap flex items-center justify-center gap-2 ${
+                  activeTool === 'games' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
+                }`}
+              >
+                <span>🎮</span> Safe Games
+              </button>
             </div>
             <div className="p-0">
               {activeTool === 'checker' && <AppChecker selectedDevice={selectedDevice} />}
@@ -237,6 +246,7 @@ const App: React.FC = () => {
               {activeTool === 'fbsafety' && <FBSafety />}
               {activeTool === 'linkcheck' && <LinkCheck />}
               {activeTool === 'scamalerts' && <ScamAlerts />}
+              {activeTool === 'games' && <SafeGames />}
             </div>
           </div>
         </div>
@@ -253,7 +263,14 @@ const App: React.FC = () => {
               <Button variant="primary" className="!bg-white !text-primary !border-none !rounded-full px-8 md:px-10 py-4 md:py-5 text-sm md:text-base shadow-xl">
                 Printable Guide
               </Button>
-              <Button variant="secondary" className="!bg-white/10 !text-white !border-white/20 !rounded-full px-8 md:px-10 py-4 md:py-5 backdrop-blur-md text-sm md:text-base">
+              <Button 
+                variant="secondary" 
+                onClick={() => {
+                  handleToolChange('games');
+                  document.getElementById('tool-tabs')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="!bg-white/10 !text-white !border-white/20 !rounded-full px-8 md:px-10 py-4 md:py-5 backdrop-blur-md text-sm md:text-base"
+              >
                 Safe Games
               </Button>
             </div>

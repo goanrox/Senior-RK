@@ -58,7 +58,7 @@ const AppChecker: React.FC<AppCheckerProps> = ({ selectedDevice }) => {
         setResult(null);
       }
       setIsLoading(false);
-    }, 800); // Increased debounce for API call
+    }, 400); // Reduced debounce for even faster response
 
     return () => clearTimeout(timer);
   }, [query]);

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import Markdown from 'react-markdown';
 
+import React, { useState } from 'react';
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { getGeminiApiKey } from "../utils/apiKey";
+import { searchCache } from "../utils/cache";
+import Markdown from 'react-markdown';
 import { hapticFeedback } from '../utils/haptics';
 
 const PhoneSearch: React.FC = () => {
@@ -12,11 +15,13 @@ const PhoneSearch: React.FC = () => {
 
   const handleShare = async () => {
     if (!result) return;
+    
     const shareData = {
       title: `Senior Guide for ${query}`,
       text: result,
-      url: window.location.href
+      url: window.location.href,
     };
+
     try {
       if (navigator.share) {
         await navigator.share(shareData);
@@ -36,25 +41,72 @@ const PhoneSearch: React.FC = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedQuery = query.trim();
+    
+    // Validation
     if (!trimmedQuery) {
       setError("Please enter a phone model.");
       hapticFeedback.warning();
       return;
     }
+
+    if (trimmedQuery.length < 3) {
+      setError("Please enter at least 3 characters for the phone model.");
+      hapticFeedback.warning();
+      return;
+    }
+
+    if (trimmedQuery.length > 50) {
+      setError("Phone model name is too long. Please keep it under 50 characters.");
+      hapticFeedback.warning();
+      return;
+    }
+
+    // Basic sanitization check for suspicious characters
+    if (/[<>{}[]]/.test(trimmedQuery)) {
+      setError("Please avoid using special characters like < > { } [ ].");
+      hapticFeedback.warning();
+      return;
+    }
+
     hapticFeedback.light();
+    
+    const cacheKey = `phone-search-${trimmedQuery.toLowerCase()}`;
+    const cachedResult = searchCache.get<string>(cacheKey);
+    if (cachedResult) {
+      setResult(cachedResult);
+      hapticFeedback.success();
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
+
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const prompt = `Provide a simple guide for a senior using a ${trimmedQuery} Android phone. Include Senior Mode instructions and 5 accessibility tips. Use very simple language.`;
-      const response = await model.generateContent(prompt);
-      setResult(response.response.text());
+      const apiKey = getGeminiApiKey();
+      if (!apiKey) {
+        setError("API key is missing. Please configure the application.");
+        return;
+      }
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Quick guide for a senior using a ${trimmedQuery} Android phone. 
+        Focus on: Senior/Easy Mode activation and 3-5 simple accessibility tips. 
+        Keep it very concise and easy to read.`,
+        config: {
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+          tools: [{ googleSearch: {} }],
+        },
+      });
+
+      const textResult = response.text || "Sorry, I couldn't find any specific tips for that model.";
+      setResult(textResult);
+      searchCache.set(cacheKey, textResult);
       hapticFeedback.success();
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      console.error(err);
+      setError("Something went wrong while searching. Please try again.");
       hapticFeedback.warning();
     } finally {
       setLoading(false);
@@ -62,38 +114,65 @@ const PhoneSearch: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      <form onSubmit={handleSearch} className="relative mb-4">
-        <input
-          type="text"
-          placeholder="Enter phone model (e.g. Samsung A15)"
+    <div className="p-6 md:p-10">
+      <h2 className="text-2xl md:text-[28px] font-bold mb-2 text-text-main">Phone Setup & Tips</h2>
+      <p className="mb-6 md:mb-8 text-text-muted text-sm md:text-base font-medium">Search for your phone model to find "Senior Mode" and custom tips.</p>
+      
+      <form onSubmit={handleSearch} className="relative mb-8 md:mb-10">
+        <div className="absolute inset-y-0 left-4 md:left-6 flex items-center pointer-events-none">
+          <span className="text-lg md:text-xl opacity-30">📱</span>
+        </div>
+        <input 
+          type="text" 
+          placeholder="Enter phone model"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-4 pr-36 py-4 bg-white border rounded-2xl outline-none"
+          className="w-full pl-12 md:pl-16 pr-28 md:pr-36 py-4 md:py-5 text-base md:text-lg bg-white border border-border-main rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary/20 transition-all outline-none shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
         />
-        <button
+        <button 
           type="submit"
           disabled={loading}
-          className="absolute right-2 top-2 bottom-2 px-4 bg-blue-500 text-white rounded-xl"
+          className="absolute right-2 md:right-2.5 top-2 md:top-2.5 bottom-2 md:bottom-2.5 px-5 md:px-8 bg-primary text-white font-bold rounded-full shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 disabled:opacity-50 text-xs md:text-sm"
         >
           {loading ? '...' : 'Search'}
         </button>
       </form>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {loading && <p className="text-gray-500">Consulting the experts...</p>}
+      {error && (
+        <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded-2xl mb-6 text-sm font-medium">
+          {error}
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-10 md:py-16 space-y-4 md:space-y-5">
+          <div className="w-12 h-12 md:w-14 md:h-14 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-text-muted font-bold animate-pulse text-xs md:text-sm">Consulting the experts...</p>
+        </div>
+      )}
 
       {result && !loading && (
-        <div>
-          <button
-            onClick={handleShare}
-            className="mb-4 px-4 py-2 bg-gray-100 rounded-xl text-sm"
-          >
-            {shareStatus === 'copied' ? '✅ Copied' : '📤 Share'}
-          </button>
-          <div className="prose prose-sm max-w-none">
-            <Markdown>{result}</Markdown>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="p-6 md:p-8 rounded-2xl border bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] border-border-main text-text-main">
+            <div className="flex justify-between items-start mb-4 md:mb-6">
+              <h3 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <span>✨</span> Senior Guide for {query}
+              </h3>
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary font-black rounded-full text-xs md:text-sm hover:bg-primary hover:text-white transition-all active:scale-95"
+              >
+                <span>{shareStatus === 'copied' ? '✅' : '📤'}</span>
+                {shareStatus === 'copied' ? 'Copied' : 'Share'}
+              </button>
+            </div>
+            <div className="markdown-body max-w-none text-sm md:text-base font-medium">
+              <Markdown>{result}</Markdown>
+            </div>
           </div>
+          <p className="mt-6 text-[10px] md:text-[11px] text-text-muted font-bold uppercase tracking-widest text-center">
+            Powered by Google Search & Gemini
+          </p>
         </div>
       )}
     </div>
@@ -101,3 +180,4 @@ const PhoneSearch: React.FC = () => {
 };
 
 export default PhoneSearch;
+
