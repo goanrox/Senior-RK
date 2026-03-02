@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DeviceBrand } from './types';
 import { DEVICE_INSTRUCTIONS } from './constants';
 import Button from './components/Button';
@@ -15,9 +16,10 @@ import LinkCheck from './components/LinkCheck';
 import ScamAlerts from './components/ScamAlerts';
 import SafeGames from './components/SafeGames';
 import Deals from './components/Deals';
+import Admin from './components/Admin';
 import { hapticFeedback } from './utils/haptics';
 
-const App: React.FC = () => {
+const Home: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceBrand | null>(null);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -331,6 +333,17 @@ const App: React.FC = () => {
 
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
