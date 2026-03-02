@@ -14,6 +14,7 @@ import FBSafety from './components/FBSafety';
 import LinkCheck from './components/LinkCheck';
 import ScamAlerts from './components/ScamAlerts';
 import SafeGames from './components/SafeGames';
+import Deals from './components/Deals';
 import { hapticFeedback } from './utils/haptics';
 
 const App: React.FC = () => {
@@ -21,7 +22,7 @@ const App: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLargeText, setIsLargeText] = useState(false);
-  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games'>('checker');
+  const [activeTool, setActiveTool] = useState<'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games' | 'deals'>('checker');
 
   React.useEffect(() => {
     if (isDarkMode) {
@@ -57,7 +58,7 @@ const App: React.FC = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games') => {
+  const handleToolChange = (tool: 'checker' | 'search' | 'tips' | 'adblock' | 'hsi' | 'fbsafety' | 'linkcheck' | 'scamalerts' | 'games' | 'deals') => {
     hapticFeedback.light();
     setActiveTool(tool);
   };
@@ -100,6 +101,15 @@ const App: React.FC = () => {
             <div className="hidden sm:flex gap-4 md:gap-6 font-bold text-[10px] md:text-sm uppercase tracking-widest text-text-muted ml-2 md:ml-4">
               <a href="#" className="hover:text-primary transition-colors">Guide</a>
               <a href="#" className="hover:text-primary transition-colors">Security</a>
+              <button 
+                onClick={() => {
+                  handleToolChange('deals');
+                  document.getElementById('tool-tabs')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="hover:text-primary transition-colors uppercase"
+              >
+                Deals
+              </button>
             </div>
           </div>
         </div>
@@ -236,6 +246,14 @@ const App: React.FC = () => {
               >
                 <span>🎮</span> Safe Games
               </button>
+              <button 
+                onClick={() => handleToolChange('deals')}
+                className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap flex items-center justify-center gap-2 ${
+                  activeTool === 'deals' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
+                }`}
+              >
+                <span>🏷️</span> Deals
+              </button>
             </div>
             <div className="p-0">
               {activeTool === 'checker' && <AppChecker selectedDevice={selectedDevice} />}
@@ -247,6 +265,7 @@ const App: React.FC = () => {
               {activeTool === 'linkcheck' && <LinkCheck />}
               {activeTool === 'scamalerts' && <ScamAlerts />}
               {activeTool === 'games' && <SafeGames />}
+              {activeTool === 'deals' && <Deals />}
             </div>
           </div>
         </div>

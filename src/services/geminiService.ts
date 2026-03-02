@@ -1,6 +1,6 @@
 
-import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
-import { getGeminiApiKey } from "../utils/apiKey";
+import Groq from "groq-sdk";
+import { getGroqApiKey } from "../utils/apiKey";
 import { searchCache } from "../utils/cache";
 
 export const checkAppSafety = async (appName: string) => {
@@ -8,41 +8,40 @@ export const checkAppSafety = async (appName: string) => {
   const cachedResult = searchCache.get(cacheKey);
   if (cachedResult) return cachedResult;
 
-  const apiKey = getGeminiApiKey();
+  const apiKey = getGroqApiKey();
   if (!apiKey) return null;
   
-  const ai = new GoogleGenAI({ apiKey });
+  const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Quickly analyze Android app safety: "${appName}". 
-      Status: safe, warning (ads/bloat), or danger (malware/scam).
-      Score: 0-100.
-      Suggest 1 safe alternative if not safe.`,
-      config: {
-        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-        tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            name: { type: Type.STRING },
-            status: { 
-              type: Type.STRING, 
-              enum: ["safe", "warning", "danger"] 
-            },
-            reason: { type: Type.STRING },
-            alternative: { type: Type.STRING },
-            score: { type: Type.NUMBER }
-          },
-          required: ["name", "status", "reason", "score"]
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI that analyzes Android app safety. You must respond in valid JSON matching this schema:
+{
+  "name": "string",
+  "status": "safe" | "warning" | "danger",
+  "reason": "string",
+  "alternative": "string",
+  "score": number
+}`
+        },
+        {
+          role: "user",
+          content: `Quickly analyze Android app safety: "${appName}". 
+          Status: safe, warning (ads/bloat), or danger (malware/scam).
+          Score: 0-100.
+          Suggest 1 safe alternative if not safe.`
         }
-      }
+      ],
+      response_format: { type: "json_object" }
     });
 
-    if (response.text) {
-      const result = JSON.parse(response.text.trim());
+    const text = response.choices[0]?.message?.content;
+    if (text) {
+      const result = JSON.parse(text.trim());
       searchCache.set(cacheKey, result);
       return result;
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
-import { getGeminiApiKey } from "../utils/apiKey";
+import Groq from "groq-sdk";
+import { getGroqApiKey } from "../utils/apiKey";
 import { searchCache } from "../utils/cache";
 import { hapticFeedback } from '../utils/haptics';
 
@@ -66,42 +66,37 @@ const LinkCheck: React.FC = () => {
         urlToCheck = 'http://' + urlToCheck;
       }
 
-      const apiKey = getGeminiApiKey();
+      const apiKey = getGroqApiKey();
       if (!apiKey) {
         setError("API key is missing. Please configure the application.");
         return;
       }
-      const ai = new GoogleGenAI({ apiKey });
+      const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Quickly check URL safety: ${urlToCheck}. 
-        Status: safe, dangerous, or unknown.
-        Threat: If dangerous, name the threat (e.g., Phishing).`,
-        config: {
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-          tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              status: {
-                type: Type.STRING,
-                description: "The safety status of the URL: 'safe', 'dangerous', or 'unknown'."
-              },
-              threatType: {
-                type: Type.STRING,
-                description: "If dangerous, a short description of the threat (e.g., 'Phishing', 'Malware'). Otherwise, leave empty or null."
-              }
-            },
-            required: ["status"]
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: `You are an AI that analyzes URL safety. You must respond in valid JSON matching this schema:
+{
+  "status": "safe" | "dangerous" | "unknown",
+  "threatType": "string" // If dangerous, a short description of the threat (e.g., 'Phishing', 'Malware'). Otherwise, leave empty or null.
+}`
+          },
+          {
+            role: "user",
+            content: `Quickly check URL safety: ${urlToCheck}. 
+            Status: safe, dangerous, or unknown.
+            Threat: If dangerous, name the threat (e.g., Phishing).`
           }
-        },
+        ],
+        response_format: { type: "json_object" }
       });
 
-      const responseText = response.text;
+      const responseText = response.choices[0]?.message?.content;
       if (!responseText) {
-        throw new Error("Empty response from Gemini");
+        throw new Error("Empty response from Groq");
       }
 
       const data = JSON.parse(responseText);

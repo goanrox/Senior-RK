@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import { getGeminiApiKey } from "../utils/apiKey";
+import Groq from "groq-sdk";
+import { getGroqApiKey } from "../utils/apiKey";
 import { searchCache } from "../utils/cache";
 import Markdown from 'react-markdown';
 import { hapticFeedback } from '../utils/haptics';
@@ -83,24 +83,29 @@ const PhoneSearch: React.FC = () => {
     setResult(null);
 
     try {
-      const apiKey = getGeminiApiKey();
+      const apiKey = getGroqApiKey();
       if (!apiKey) {
         setError("API key is missing. Please configure the application.");
         return;
       }
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Quick guide for a senior using a ${trimmedQuery} Android phone. 
-        Focus on: Senior/Easy Mode activation and 3-5 simple accessibility tips. 
-        Keep it very concise and easy to read.`,
-        config: {
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-          tools: [{ googleSearch: {} }],
-        },
+      const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant providing concise guides for seniors using Android phones."
+          },
+          {
+            role: "user",
+            content: `Quick guide for a senior using a ${trimmedQuery} Android phone. 
+            Focus on: Senior/Easy Mode activation and 3-5 simple accessibility tips. 
+            Keep it very concise and easy to read.`
+          }
+        ]
       });
 
-      const textResult = response.text || "Sorry, I couldn't find any specific tips for that model.";
+      const textResult = response.choices[0]?.message?.content || "Sorry, I couldn't find any specific tips for that model.";
       setResult(textResult);
       searchCache.set(cacheKey, textResult);
       hapticFeedback.success();
@@ -171,7 +176,7 @@ const PhoneSearch: React.FC = () => {
             </div>
           </div>
           <p className="mt-6 text-[10px] md:text-[11px] text-text-muted font-bold uppercase tracking-widest text-center">
-            Powered by Google Search & Gemini
+            Powered by Groq & Llama 3
           </p>
         </div>
       )}
