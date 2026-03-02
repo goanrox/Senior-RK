@@ -137,9 +137,16 @@ const PhoneSearch: React.FC = () => {
         <button 
           type="submit"
           disabled={loading}
-          className="absolute right-2 md:right-2.5 top-2 md:top-2.5 bottom-2 md:bottom-2.5 px-5 md:px-8 bg-primary text-white font-bold rounded-full shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 disabled:opacity-50 text-xs md:text-sm"
+          className="absolute right-2 md:right-2.5 top-2 md:top-2.5 bottom-2 md:bottom-2.5 px-6 md:px-10 bg-[#6C63FF] text-white font-black rounded-full shadow-lg shadow-primary/30 hover:bg-[#5A52E0] transition-all active:scale-95 disabled:opacity-50 text-sm md:text-base flex items-center justify-center gap-2"
         >
-          {loading ? '...' : 'Search'}
+          {loading ? (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <span className="hidden sm:inline">🔍</span>
+              <span>Search</span>
+            </>
+          )}
         </button>
       </form>
 

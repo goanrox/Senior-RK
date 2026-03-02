@@ -49,13 +49,13 @@ const Admin: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const dealData = {
+      const dealData: Omit<Deal, 'id'> = {
         title: formData.title,
-        storeName: formData.storeName,
-        description: formData.description,
-        originalPrice: parseFloat(formData.originalPrice),
-        salePrice: parseFloat(formData.salePrice),
-        imageUrl: formData.imageUrl,
+        storeName: formData.storeName || undefined,
+        description: formData.description || undefined,
+        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
+        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : undefined,
+        imageUrl: formData.imageUrl || undefined,
         affiliateLink: formData.affiliateLink,
         createdAt: editingDeal ? editingDeal.createdAt : Date.now()
       };
@@ -89,11 +89,11 @@ const Admin: React.FC = () => {
     setEditingDeal(deal);
     setFormData({
       title: deal.title,
-      storeName: deal.storeName,
-      description: deal.description,
-      originalPrice: deal.originalPrice.toString(),
-      salePrice: deal.salePrice.toString(),
-      imageUrl: deal.imageUrl,
+      storeName: deal.storeName || '',
+      description: deal.description || '',
+      originalPrice: deal.originalPrice?.toString() || '',
+      salePrice: deal.salePrice?.toString() || '',
+      imageUrl: deal.imageUrl || '',
       affiliateLink: deal.affiliateLink
     });
   };
@@ -153,33 +153,37 @@ const Admin: React.FC = () => {
             <h2 className="text-xl font-bold mb-4">{editingDeal ? 'Edit Deal' : 'Add New Deal'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title <span className="text-red-500">*</span>
+                </label>
                 <input type="text" name="title" value={formData.title} onChange={handleInputChange} required className="w-full p-2 border rounded" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Store/Brand Name</label>
-                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} required className="w-full p-2 border rounded" />
+                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className="w-full p-2 border rounded" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} required className="w-full p-2 border rounded" rows={3} />
+                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-2 border rounded" rows={3} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
-                  <input type="number" step="0.01" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} required className="w-full p-2 border rounded" />
+                  <input type="number" step="0.01" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} className="w-full p-2 border rounded" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price</label>
-                  <input type="number" step="0.01" name="salePrice" value={formData.salePrice} onChange={handleInputChange} required className="w-full p-2 border rounded" />
+                  <input type="number" step="0.01" name="salePrice" value={formData.salePrice} onChange={handleInputChange} className="w-full p-2 border rounded" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} required className="w-full p-2 border rounded" />
+                <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} className="w-full p-2 border rounded" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Affiliate Link</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Affiliate Link <span className="text-red-500">*</span>
+                </label>
                 <input type="url" name="affiliateLink" value={formData.affiliateLink} onChange={handleInputChange} required className="w-full p-2 border rounded" />
               </div>
               
@@ -213,13 +217,21 @@ const Admin: React.FC = () => {
                 {deals.map(deal => (
                   <div key={deal.id} className="bg-white p-4 rounded-xl shadow-sm border flex flex-col">
                     <div className="flex gap-4 mb-3">
-                      <img src={deal.imageUrl} alt={deal.title} className="w-20 h-20 object-cover rounded" />
+                      {deal.imageUrl ? (
+                        <img src={deal.imageUrl} alt={deal.title} className="w-20 h-20 object-cover rounded" />
+                      ) : (
+                        <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-2xl">🛍️</div>
+                      )}
                       <div>
                         <h3 className="font-bold line-clamp-1">{deal.title}</h3>
-                        <p className="text-sm text-gray-500">{deal.storeName}</p>
+                        <p className="text-sm text-gray-500">{deal.storeName || 'No Store'}</p>
                         <div className="mt-1">
-                          <span className="text-emerald-600 font-bold">${deal.salePrice}</span>
-                          <span className="text-gray-400 line-through text-sm ml-2">${deal.originalPrice}</span>
+                          {deal.salePrice !== undefined && (
+                            <span className="text-emerald-600 font-bold">${deal.salePrice}</span>
+                          )}
+                          {deal.originalPrice !== undefined && (
+                            <span className="text-gray-400 line-through text-sm ml-2">${deal.originalPrice}</span>
+                          )}
                         </div>
                       </div>
                     </div>

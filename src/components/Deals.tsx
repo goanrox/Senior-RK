@@ -54,16 +54,22 @@ const Deals: React.FC = () => {
               key={deal.id}
               className="bg-white rounded-2xl border-2 border-border-main overflow-hidden shadow-md hover:shadow-lg transition-all flex flex-col"
             >
-              <div className="h-48 md:h-64 w-full bg-gray-100 relative">
-                <img 
-                  src={deal.imageUrl} 
-                  alt={deal.title} 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-md">
-                  {deal.storeName}
-                </div>
+              <div className="h-48 md:h-64 w-full bg-gray-100 relative flex items-center justify-center">
+                {deal.imageUrl ? (
+                  <img 
+                    src={deal.imageUrl} 
+                    alt={deal.title} 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="text-6xl md:text-8xl">🛍️</div>
+                )}
+                {deal.storeName && (
+                  <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-md">
+                    {deal.storeName}
+                  </div>
+                )}
               </div>
               
               <div className="p-6 flex flex-col flex-grow">
@@ -71,18 +77,22 @@ const Deals: React.FC = () => {
                   {deal.title}
                 </h3>
                 
-                <p className="text-lg text-text-muted mb-6 flex-grow font-medium leading-relaxed">
-                  {deal.description}
-                </p>
+                {deal.description && (
+                  <p className="text-lg text-text-muted mb-6 flex-grow font-medium leading-relaxed">
+                    {deal.description}
+                  </p>
+                )}
 
-                <div className="flex items-end gap-4 mb-6">
-                  <span className="text-4xl font-black text-emerald-600">
-                    ${deal.salePrice.toFixed(2)}
-                  </span>
-                  <span className="text-2xl font-bold text-gray-400 line-through mb-1">
-                    ${deal.originalPrice.toFixed(2)}
-                  </span>
-                </div>
+                {deal.salePrice !== undefined && deal.originalPrice !== undefined && (
+                  <div className="flex items-end gap-4 mb-6">
+                    <span className="text-4xl font-black text-emerald-600">
+                      ${deal.salePrice.toFixed(2)}
+                    </span>
+                    <span className="text-2xl font-bold text-gray-400 line-through mb-1">
+                      ${deal.originalPrice.toFixed(2)}
+                    </span>
+                  </div>
+                )}
 
                 <button 
                   onClick={() => handleGetDeal(deal.affiliateLink)}

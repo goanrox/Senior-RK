@@ -16,11 +16,11 @@ export const db = getFirestore(app);
 export interface Deal {
   id?: string;
   title: string;
-  storeName: string;
-  description: string;
-  originalPrice: number;
-  salePrice: number;
-  imageUrl: string;
+  storeName?: string;
+  description?: string;
+  originalPrice?: number;
+  salePrice?: number;
+  imageUrl?: string;
   affiliateLink: string;
   createdAt: number;
 }
