@@ -193,6 +193,14 @@ const Home: React.FC = () => {
                 Phone Search
               </button>
               <button 
+                onClick={() => handleToolChange('deals')}
+                className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap flex items-center justify-center gap-2 ${
+                  activeTool === 'deals' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
+                }`}
+              >
+                <span>🏷️</span> Deals
+              </button>
+              <button 
                 onClick={() => handleToolChange('adblock')}
                 className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap ${
                   activeTool === 'adblock' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
@@ -248,14 +256,6 @@ const Home: React.FC = () => {
               >
                 <span>🎮</span> Safe Games
               </button>
-              <button 
-                onClick={() => handleToolChange('deals')}
-                className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl whitespace-nowrap flex items-center justify-center gap-2 ${
-                  activeTool === 'deals' ? 'bg-primary text-white shadow-md' : 'text-text-main hover:text-primary'
-                }`}
-              >
-                <span>🏷️</span> Deals
-              </button>
             </div>
             <div className="p-0">
               {activeTool === 'checker' && <AppChecker selectedDevice={selectedDevice} />}
@@ -281,7 +281,11 @@ const Home: React.FC = () => {
               Our printable guides are designed specifically for seniors who want a worry-free experience.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-              <Button variant="primary" className="!bg-white !text-primary !border-none !rounded-full px-8 md:px-10 py-4 md:py-5 text-sm md:text-base shadow-xl">
+              <Button 
+                variant="primary" 
+                onClick={() => window.print()}
+                className="!bg-white !text-primary !border-none !rounded-full px-8 md:px-10 py-4 md:py-5 text-sm md:text-base shadow-xl"
+              >
                 Printable Guide
               </Button>
               <Button 

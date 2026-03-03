@@ -128,3 +128,35 @@
     @apply rounded-full px-8 py-4 font-bold transition-all active:scale-95 shadow-lg bg-primary text-white;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Hide navigation, footer, hero section, and non-essential UI */
+  header, footer, .sticky, #tool-tabs > div:first-child, section.bg-primary {
+    display: none !important;
+  }
+
+  /* Ensure the active tool content is visible and takes full width */
+  #tool-tabs {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Make sure the device instructions are printed nicely */
+  .card-premium {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Hide the device selector buttons */
+  .grid-cols-2.md\:grid-cols-4 {
+    display: none !important;
+  }
+}
