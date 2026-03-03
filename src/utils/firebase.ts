@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAhvtGoN4olnPhFM0yaSz0OXAw0LWrsUWg",
-  authDomain: "rescuekit-ed48a.firebaseapp.com",
-  projectId: "rescuekit-ed48a",
-  storageBucket: "rescuekit-ed48a.firebasestorage.app",
-  messagingSenderId: "864446788576",
-  appId: "1:864446788576:web:ca2681d27692373128f185"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAhvtGoN4olnPhFM0yaSz0OXAw0LWrsUWg",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "rescuekit-ed48a.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "rescuekit-ed48a",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "rescuekit-ed48a.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "864446788576",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:864446788576:web:ca2681d27692373128f185"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -16,11 +16,11 @@ export const db = getFirestore(app);
 export interface Deal {
   id?: string;
   title: string;
-  storeName?: string;
-  description?: string;
-  originalPrice?: number;
-  salePrice?: number;
-  imageUrl?: string;
+  storeName?: string | null;
+  description?: string | null;
+  originalPrice?: number | null;
+  salePrice?: number | null;
+  imageUrl?: string | null;
   affiliateLink: string;
   createdAt: number;
 }

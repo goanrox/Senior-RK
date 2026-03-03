@@ -51,11 +51,11 @@ const Admin: React.FC = () => {
     try {
       const dealData: Omit<Deal, 'id'> = {
         title: formData.title,
-        storeName: formData.storeName || undefined,
-        description: formData.description || undefined,
-        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
-        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : undefined,
-        imageUrl: formData.imageUrl || undefined,
+        storeName: formData.storeName || null,
+        description: formData.description || null,
+        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
+        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+        imageUrl: formData.imageUrl || null,
         affiliateLink: formData.affiliateLink,
         createdAt: editingDeal ? editingDeal.createdAt : Date.now()
       };
@@ -226,10 +226,10 @@ const Admin: React.FC = () => {
                         <h3 className="font-bold line-clamp-1">{deal.title}</h3>
                         <p className="text-sm text-gray-500">{deal.storeName || 'No Store'}</p>
                         <div className="mt-1">
-                          {deal.salePrice !== undefined && (
+                          {deal.salePrice != null && (
                             <span className="text-emerald-600 font-bold">${deal.salePrice}</span>
                           )}
-                          {deal.originalPrice !== undefined && (
+                          {deal.originalPrice != null && (
                             <span className="text-gray-400 line-through text-sm ml-2">${deal.originalPrice}</span>
                           )}
                         </div>

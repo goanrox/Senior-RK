@@ -83,7 +83,7 @@ const Deals: React.FC = () => {
                   </p>
                 )}
 
-                {deal.salePrice !== undefined && deal.originalPrice !== undefined && (
+                {deal.salePrice != null && deal.originalPrice != null && (
                   <div className="flex items-end gap-4 mb-6">
                     <span className="text-4xl font-black text-emerald-600">
                       ${deal.salePrice.toFixed(2)}
