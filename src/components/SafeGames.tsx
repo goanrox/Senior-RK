@@ -140,10 +140,10 @@ const SafeGames: React.FC = () => {
       </div>
 
       <div className="mt-10 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
-        <h4 className="font-bold text-amber-800 dark:text-amber-400 mb-2 flex items-center gap-2">
+        <h4 className="font-bold text-black mb-2 flex items-center gap-2">
           <span>💡</span> A Quick Tip for Games
         </h4>
-        <p className="text-sm text-amber-900/80 dark:text-amber-300/80 font-medium leading-relaxed">
+        <p className="text-sm text-black font-medium leading-relaxed">
           Many free games show ads between levels. If an ad tells you your phone has a virus or needs a "Cleaner," 
           <strong> ignore it!</strong> It's just an ad trying to get you to download something else. 
           Just wait for the "X" to appear in the corner to close the ad.
