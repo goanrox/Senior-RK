@@ -1,20 +1,45 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🛡️ RescueKit — AI Safety Companion for Seniors
 
-# Run and deploy your AI Studio app
+> Built by Xavier Serrao | Live at [senior-rk.vercel.app](https://senior-rk.vercel.app)
 
-This contains everything you need to run your app locally.
+## What It Does
+RescueKit is an AI-powered smartphone safety app designed 
+specifically for seniors. It helps older adults navigate 
+their devices safely, avoid scams, and stay protected in 
+an increasingly complex digital world.
 
-View your app in AI Studio: https://ai.studio/apps/8ba58cd5-c361-40fc-b009-b53c0f9cc89f
+## The Problem It Solves
+Seniors are the #1 target for phone scams, digital fraud, 
+and tech confusion. Most safety apps are built for tech-savvy 
+users — RescueKit is built for your grandparents. Simple, 
+clear, and protective by design.
 
-## Run Locally
+## Features
+- 🤖 AI-powered safety assistant (Groq API)
+- 🚨 Scam alerts & fraud detection tool
+- 🎮 SafeGames — curated safe app recommendations
+- 🔥 Firebase backend for real-time data
+- 📱 PWA — installable like a native mobile app
+- 🎨 Warm, senior-friendly UI design
+- ♿ Accessibility-first interface
 
-**Prerequisites:**  Node.js
+## Tech Stack
+- TypeScript + Vite + React
+- Groq AI API
+- Google Firebase (backend + real-time database)
+- PWA (Progressive Web App)
+- Deployed on Vercel (88 deployments & counting)
 
+## The Story Behind It
+Built by a T-Mobile retail manager who watched seniors 
+struggle daily with their devices — and decided to do 
+something about it. RescueKit is designed from real 
+frontline experience with older customers.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Built By
+Xavier Serrao — Builder | T-Mobile RAM | Jacksonville, NC  
+[LinkedIn](https://linkedin.com/in/xavier-serrao05) |
+[GitHub](https://github.com/goanrox)
+
+---
+*Because everyone deserves to feel safe with technology.*
