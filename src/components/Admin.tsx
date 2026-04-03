@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Deal, getDeals, addDeal, updateDeal, deleteDeal } from '../utils/firebase';
+import { Deal, getDeals, addDeal, updateDeal, deleteDeal, auth } from '../utils/firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { toast } from 'sonner';
 import { 
   Lock, 
@@ -18,14 +19,18 @@ import {
   ExternalLink,
   ChevronRight,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  LogOut,
+  Mail
 } from 'lucide-react';
 
 const Admin: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -38,15 +43,38 @@ const Admin: React.FC = () => {
     affiliateLink: ''
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+      if (currentUser) {
+        fetchDeals();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || (typeof process !== 'undefined' ? process.env.VITE_ADMIN_PASSWORD : '') || 'admin';
-    if (password === adminPassword) {
-      setIsAuthenticated(true);
-      fetchDeals();
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast.success('Logged in successfully');
-    } else {
-      toast.error('Incorrect password');
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error.message || 'Incorrect email or password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error('Error logging out');
     }
   };
 
@@ -139,7 +167,15 @@ const Admin: React.FC = () => {
     }
   };
 
-  if (!isAuthenticated) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-bg-main flex items-center justify-center p-6">
+        <Loader2 className="animate-spin text-primary" size={40} />
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-bg-main flex items-center justify-center p-6">
         <div className="card-premium p-10 bg-white border border-border-main max-w-md w-full shadow-2xl space-y-8">
@@ -148,11 +184,26 @@ const Admin: React.FC = () => {
               <Lock size={40} />
             </div>
             <h2 className="text-3xl font-bold text-text-main">Admin Login</h2>
-            <p className="text-text-muted font-medium">Please enter your password to manage deals.</p>
+            <p className="text-text-muted font-medium">Please sign in to manage deals.</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-text-main ml-1">Password</label>
+              <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                <Mail size={14} /> Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all text-lg"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                <Lock size={14} /> Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -162,8 +213,8 @@ const Admin: React.FC = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn-tactile btn-primary w-full py-4 text-lg shadow-lg shadow-primary/20">
-              Access Dashboard
+            <button type="submit" disabled={loading} className="btn-tactile btn-primary w-full py-4 text-lg shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+              {loading ? <Loader2 className="animate-spin" size={20} /> : 'Access Dashboard'}
             </button>
           </form>
         </div>
@@ -179,13 +230,22 @@ const Admin: React.FC = () => {
             <h1 className="text-3xl md:text-4xl font-bold text-text-main">Manage Deals</h1>
             <p className="text-text-muted text-lg font-medium">Add, edit, or remove exclusive offers for seniors.</p>
           </div>
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="btn-tactile bg-white border border-border-main text-text-main px-6 py-3 rounded-2xl flex items-center gap-3 font-bold hover:shadow-md transition-all"
-          >
-            <ArrowLeft size={20} />
-            Back to App
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handleLogout}
+              className="btn-tactile bg-rose-50 border border-rose-100 text-rose-600 px-6 py-3 rounded-2xl flex items-center gap-3 font-bold hover:bg-rose-100 transition-all"
+            >
+              <LogOut size={20} />
+              Logout
+            </button>
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="btn-tactile bg-white border border-border-main text-text-main px-6 py-3 rounded-2xl flex items-center gap-3 font-bold hover:shadow-md transition-all"
+            >
+              <ArrowLeft size={20} />
+              Back to App
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
