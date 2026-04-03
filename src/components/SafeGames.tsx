@@ -1,6 +1,20 @@
 
 import React from 'react';
 import { hapticFeedback } from '../utils/haptics';
+import { 
+  Gamepad2, 
+  ExternalLink, 
+  ShieldCheck, 
+  Lightbulb,
+  Trophy,
+  Puzzle,
+  Hash,
+  Type,
+  LayoutGrid,
+  Sword,
+  CheckCircle2,
+  Info
+} from 'lucide-react';
 
 interface Game {
   name: string;
@@ -9,6 +23,7 @@ interface Game {
   playStoreUrl: string;
   safetyNote: string;
   category: string;
+  lucideIcon: any;
 }
 
 const games: Game[] = [
@@ -18,7 +33,8 @@ const games: Game[] = [
     icon: "🃏",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.microsoft.microsoftsolitairecollection",
     safetyNote: "Official Microsoft app. Very safe, contains some ads but no malicious content.",
-    category: "Cards"
+    category: "Cards",
+    lucideIcon: LayoutGrid
   },
   {
     name: "Wordle (NYT Games)",
@@ -26,7 +42,8 @@ const games: Game[] = [
     icon: "📝",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.nytimes.crossword",
     safetyNote: "Part of the New York Times app. High quality and safe.",
-    category: "Words"
+    category: "Words",
+    lucideIcon: Type
   },
   {
     name: "Mahjong Solitaire",
@@ -34,7 +51,8 @@ const games: Game[] = [
     icon: "🀄",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.microsoft.mahjong",
     safetyNote: "Microsoft version is clean and professional.",
-    category: "Puzzle"
+    category: "Puzzle",
+    lucideIcon: Puzzle
   },
   {
     name: "Sudoku.com",
@@ -42,7 +60,8 @@ const games: Game[] = [
     icon: "🔢",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.easybrain.sudoku.android",
     safetyNote: "Very popular and well-vetted. Watch out for 'Booster' ads between games.",
-    category: "Numbers"
+    category: "Numbers",
+    lucideIcon: Hash
   },
   {
     name: "Jigsaw Puzzles Real",
@@ -50,7 +69,8 @@ const games: Game[] = [
     icon: "🧩",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.rottzgames.jigsawpuzzlesreal",
     safetyNote: "Simple interface, very senior-friendly.",
-    category: "Puzzle"
+    category: "Puzzle",
+    lucideIcon: Puzzle
   },
   {
     name: "Chess.com",
@@ -58,7 +78,8 @@ const games: Game[] = [
     icon: "♟️",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.chess",
     safetyNote: "The gold standard for chess. Very safe community.",
-    category: "Strategy"
+    category: "Strategy",
+    lucideIcon: Sword
   },
   {
     name: "Crossword Quiz",
@@ -66,7 +87,8 @@ const games: Game[] = [
     icon: "🔡",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.apprope.crosswordquiz",
     safetyNote: "Safe and engaging word game.",
-    category: "Words"
+    category: "Words",
+    lucideIcon: Type
   },
   {
     name: "2048",
@@ -74,7 +96,8 @@ const games: Game[] = [
     icon: "➕",
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.androbaby.game2048",
     safetyNote: "Small app size, no complex permissions needed.",
-    category: "Numbers"
+    category: "Numbers",
+    lucideIcon: Hash
   }
 ];
 
@@ -85,69 +108,86 @@ const SafeGames: React.FC = () => {
   };
 
   return (
-    <div className="p-6 md:p-10">
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-2xl md:text-3xl">🎮</span>
-        <h2 className="text-2xl md:text-[28px] font-bold text-text-main">Safe Games for Seniors</h2>
+    <div className="p-6 md:p-10 space-y-12">
+      <div className="space-y-2">
+        <h2 className="text-2xl md:text-[32px] font-bold text-text-main flex items-center gap-4">
+          <div className="p-3 bg-white rounded-2xl shadow-sm border border-border-main">
+            <Gamepad2 className="text-primary" size={28} />
+          </div>
+          Safe Games for Seniors
+        </h2>
+        <p className="text-text-muted text-lg font-medium">
+          These games are hand-picked for being safe, easy to use, and great for brain health.
+        </p>
       </div>
-      <p className="mb-8 text-text-muted text-sm md:text-base font-medium">
-        These games are hand-picked for being safe, easy to use, and great for brain health.
-      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {games.map((game, index) => (
           <div 
             key={index}
-            className="bg-white rounded-2xl border border-border-main p-5 md:p-6 shadow-sm hover:shadow-md transition-all group flex flex-col"
+            className="card-premium p-8 bg-white border border-border-main hover:shadow-lg transition-all group flex flex-col relative overflow-hidden"
           >
-            <div className="flex items-start gap-4 mb-4">
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-bg-main rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-inner">
-                {game.icon}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-1 inline-block">
-                    {game.category}
-                  </span>
-                </div>
-                <h3 className="text-lg md:text-xl font-bold text-text-main group-hover:text-primary transition-colors">
-                  {game.name}
-                </h3>
-              </div>
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <game.lucideIcon size={80} />
             </div>
             
-            <p className="text-sm text-text-muted mb-4 flex-grow font-medium leading-relaxed">
-              {game.description}
-            </p>
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-start gap-6 mb-6">
+                <div className="w-16 h-16 bg-bg-main rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-border-main group-hover:scale-110 transition-transform">
+                  {game.icon}
+                </div>
+                <div className="flex-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full mb-2 inline-block">
+                    {game.category}
+                  </span>
+                  <h3 className="text-xl font-bold text-text-main group-hover:text-primary transition-colors leading-tight">
+                    {game.name}
+                  </h3>
+                </div>
+              </div>
+              
+              <p className="text-base text-text-muted mb-8 flex-grow font-medium leading-relaxed">
+                {game.description}
+              </p>
 
-            <div className="bg-emerald-50 dark:bg-emerald-900/10 p-3 rounded-xl mb-5 border border-emerald-100 dark:border-emerald-900/20">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1">
-                <span className="text-xs">🛡️</span> Safety Check
-              </p>
-              <p className="text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-                {game.safetyNote}
-              </p>
+              <div className="bg-emerald-50 p-4 rounded-2xl mb-8 border border-emerald-100">
+                <p className="text-[11px] font-black uppercase tracking-widest text-emerald-700 mb-2 flex items-center gap-2">
+                  <ShieldCheck size={14} /> Safety Check
+                </p>
+                <p className="text-sm text-emerald-800 font-medium leading-relaxed">
+                  {game.safetyNote}
+                </p>
+              </div>
+
+              <button 
+                onClick={() => handleGameClick(game.playStoreUrl)}
+                className="btn-primary w-full py-4 flex items-center justify-center gap-3 text-sm font-bold uppercase tracking-widest"
+              >
+                Get on Play Store
+                <ExternalLink size={18} />
+              </button>
             </div>
-
-            <button 
-              onClick={() => handleGameClick(game.playStoreUrl)}
-              className="w-full py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-            >
-              Get on Play Store <span>↗</span>
-            </button>
           </div>
         ))}
       </div>
 
-      <div className="mt-10 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
-        <h4 className="font-bold text-black mb-2 flex items-center gap-2">
-          <span>💡</span> A Quick Tip for Games
-        </h4>
-        <p className="text-sm text-black font-medium leading-relaxed">
-          Many free games show ads between levels. If an ad tells you your phone has a virus or needs a "Cleaner," 
-          <strong> ignore it!</strong> It's just an ad trying to get you to download something else. 
-          Just wait for the "X" to appear in the corner to close the ad.
-        </p>
+      <div className="card-premium p-8 bg-amber-50 border-amber-100 flex flex-col md:flex-row items-center gap-8 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4 opacity-5">
+          <Lightbulb size={100} />
+        </div>
+        <div className="p-4 bg-amber-100 rounded-3xl text-amber-700 relative z-10">
+          <Lightbulb size={40} />
+        </div>
+        <div className="text-center md:text-left relative z-10">
+          <h4 className="text-xl font-bold mb-3 text-text-main flex items-center justify-center md:justify-start gap-2">
+            A Quick Tip for Games
+          </h4>
+          <p className="text-base text-text-main font-medium leading-relaxed">
+            Many free games show ads between levels. If an ad tells you your phone has a virus or needs a "Cleaner," 
+            <strong> ignore it!</strong> It's just an ad trying to get you to download something else. 
+            Just wait for the "X" to appear in the corner to close the ad.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,29 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Home as HomeIcon, 
+  ShieldCheck, 
+  Smartphone, 
+  HelpCircle, 
+  ChevronLeft, 
+  ChevronRight,
+  Search, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Zap, 
+  Tag, 
+  Ban, 
+  Link as LinkIcon, 
+  Gamepad2, 
+  Info,
+  ArrowRight,
+  ShieldAlert,
+  Settings,
+  Bell,
+  User,
+  Shield
+} from 'lucide-react';
 import { DeviceBrand } from './types';
 import { DEVICE_INSTRUCTIONS } from './constants';
 import Button from './components/Button';
@@ -17,45 +40,313 @@ import ScamAlerts from './components/ScamAlerts';
 import SafeGames from './components/SafeGames';
 import Deals from './components/Deals';
 import Admin from './components/Admin';
+import { Toaster } from 'sonner';
 import { hapticFeedback } from './utils/haptics';
 
-const FeaturePage: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => {
+const FeaturePage: React.FC<{ title: string; children: React.ReactNode; backPath?: string }> = ({ title, children, backPath = '/' }) => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen text-text-main flex flex-col font-sans transition-colors duration-300 max-w-[430px] mx-auto w-full relative shadow-2xl" style={{ backgroundColor: '#F5EDD8' }}>
-      <div className="py-4 px-4 flex items-center gap-4">
-        <button onClick={() => navigate('/')} className="p-2 bg-[#C8D4A8] rounded-full shadow-sm text-[#3A4A2A] border border-[#7A8C5A]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans transition-colors duration-300 max-w-[430px] mx-auto w-full relative pb-safe-bottom overflow-x-hidden">
+      <div className="sticky top-0 z-50 glass-effect px-6 py-4 flex items-center gap-4">
+        <button 
+          onClick={() => navigate(backPath)} 
+          className="p-3 bg-white/80 rounded-2xl shadow-sm text-primary border border-border-main active:scale-95 transition-all flex items-center justify-center"
+        >
+          <ChevronLeft size={20} />
         </button>
+        <h1 className="text-xl font-bold text-text-main truncate">{title}</h1>
       </div>
-      <div className="px-6 pb-6 flex-grow">
-        <h1 className="text-3xl font-black mb-6 text-[#4A4F3E]">{title}</h1>
-        <div className="bg-surface rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-border-main overflow-hidden">
+      <div className="px-6 py-6 flex-grow pb-32">
+        <div className="card-premium overflow-hidden h-full">
           {children}
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 };
 
-const AppCheckerWrapper = () => {
+const BottomNav: React.FC = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  return <AppChecker selectedDevice={location.state?.selectedDevice || null} />;
+  
+  const navItems = [
+    { icon: HomeIcon, label: 'Home', path: '/' },
+    { icon: ShieldCheck, label: 'Safety', path: '/safety' },
+    { icon: Smartphone, label: 'Phone', path: '/phone' },
+    { icon: HelpCircle, label: 'Help', path: '/help' },
+  ];
+
+  return (
+    <nav className="bottom-nav fixed bottom-0 left-0 right-0 w-full glass-effect border-t border-border-main py-3 pb-safe-bottom flex justify-between items-center z-50 rounded-t-[32px] overflow-hidden max-w-full">
+      {navItems.map((item, index) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <button
+            key={index}
+            onClick={() => {
+              hapticFeedback.light();
+              navigate(item.path);
+            }}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-300 ${
+              isActive ? 'text-primary scale-110' : 'text-text-muted opacity-60'
+            }`}
+          >
+            <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-center">{item.label}</span>
+            {isActive && (
+              <div className="w-1 h-1 bg-primary rounded-full mt-0.5" />
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  );
 };
 
-const Home: React.FC = () => {
-  const [selectedDevice, setSelectedDevice] = useState<DeviceBrand | null>(null);
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
+const PageLayout: React.FC<{ children: React.ReactNode; title: string; showHeader?: boolean }> = ({ children, title, showHeader = true }) => {
   const [isLargeText, setIsLargeText] = useState(false);
-  const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isLargeText) {
       document.documentElement.classList.add('large-text');
     } else {
       document.documentElement.classList.remove('large-text');
     }
   }, [isLargeText]);
+
+  const toggleLargeText = () => {
+    hapticFeedback.light();
+    setIsLargeText(!isLargeText);
+  };
+
+  return (
+    <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans transition-colors duration-300 max-w-[430px] mx-auto w-full relative pb-safe-bottom overflow-x-hidden">
+      {showHeader && (
+        <header className="sticky top-0 z-50 glass-effect px-6 py-5 flex justify-between items-center rounded-b-[32px]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+              <span className="text-white font-black text-xl">R</span>
+            </div>
+            <span className="text-xl font-bold tracking-tight text-text-main">{title}</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={toggleLargeText}
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold transition-all border ${
+                isLargeText ? 'bg-primary border-primary text-white shadow-md' : 'bg-white/50 border-border-main text-text-main'
+              }`}
+              title="Toggle Large Text"
+            >
+              AA
+            </button>
+          </div>
+        </header>
+      )}
+      <main className="px-6 py-8 flex-grow w-full space-y-8 animate-in fade-in duration-500 pb-32">
+        {children}
+      </main>
+      <BottomNav />
+    </div>
+  );
+};
+
+const ToolButton: React.FC<{ onClick: () => void; icon: any; label: string; description?: string; color: string }> = ({ onClick, icon: Icon, label, description, color }) => (
+  <button 
+    onClick={onClick}
+    className="w-full card-premium p-5 flex items-center gap-5 active:scale-[0.98] transition-all group text-left"
+  >
+    <div className={`p-4 rounded-2xl ${color} shadow-sm`}>
+      <Icon size={28} />
+    </div>
+    <div className="flex-1">
+      <h3 className="font-bold text-lg text-text-main group-hover:text-primary transition-colors">{label}</h3>
+      {description && <p className="text-sm text-text-muted leading-tight">{description}</p>}
+    </div>
+    <ChevronRight className="text-text-subtle group-hover:translate-x-1 transition-transform" size={20} />
+  </button>
+);
+
+const HomeView: React.FC = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <PageLayout title="RescueKit">
+      {/* Reassurance Status Card */}
+      <section className="card-premium p-6 bg-primary-glow border-primary-light/50">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="p-3 bg-primary-light rounded-2xl text-primary flex-shrink-0">
+            <ShieldCheck size={32} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold leading-tight">Let’s check your phone together.</h2>
+            <p className="text-sm text-text-muted mt-1">We’ll help you safely find and fix common issues.</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-2 pt-6 border-t border-border-main">
+          <div className="text-center">
+            <div className="text-xl font-bold text-primary">98%</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-text-subtle">Safety score</div>
+          </div>
+          <div className="text-center border-x border-border-main">
+            <div className="text-xl font-bold text-primary">0</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-text-subtle">Issues</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold text-primary">2m</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-text-subtle">Check time</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Primary Action Callout - Guided Feel */}
+      <section className="py-2 space-y-4">
+        <h2 className="text-lg font-bold px-1">Recommended for you</h2>
+        <div className="card-premium bg-white p-6 shadow-lg border border-border-main rounded-[24px] opacity-100">
+          <div className="flex items-start gap-5 mb-6">
+            <div className="p-4 bg-accent-tint rounded-3xl flex-shrink-0 text-accent">
+              <ShieldAlert size={32} />
+            </div>
+            <div className="text-left">
+              <h3 className="text-xl font-bold text-text-main">Phone safety check</h3>
+              <p className="text-text-muted text-sm mt-1 leading-relaxed">We'll look for anything that needs attention and help you fix it safely.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              hapticFeedback.medium();
+              navigate('/tool/checker');
+            }}
+            className="w-full bg-accent text-text-main rounded-2xl py-4 font-bold shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+          >
+            Start quick phone check
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      </section>
+
+      {/* Minimal Quick Actions */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-lg font-bold">Quick tools</h2>
+          <button onClick={() => navigate('/phone')} className="text-xs font-bold text-primary uppercase tracking-wider">View all</button>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          <ToolButton 
+            onClick={() => navigate('/tool/search')}
+            icon={Smartphone}
+            label="Phone search"
+            description="Identify your device model"
+            color="bg-primary-light text-primary"
+          />
+        </div>
+      </section>
+
+      <footer className="text-center pt-8 pb-4">
+        <div className="text-[10px] text-text-muted/40 font-bold uppercase tracking-[0.2em]">
+          © 2024 RESCUEKIT • FOR SENIORS
+        </div>
+      </footer>
+    </PageLayout>
+  );
+};
+
+const SafetyView: React.FC = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <PageLayout title="Safety">
+      <section className="space-y-6">
+        <div className="px-1">
+          <h2 className="text-lg font-bold">Security tools</h2>
+          <p className="text-sm text-text-muted mt-1">Keep your personal information safe and secure.</p>
+        </div>
+        <div className="space-y-4">
+          <ToolButton 
+            onClick={() => navigate('/tool/checker')}
+            icon={ShieldAlert}
+            label="App checker"
+            description="Identify risky or fake apps"
+            color="bg-red-50 text-red-600"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/linkcheck')}
+            icon={LinkIcon}
+            label="Link checker"
+            description="Verify suspicious website links"
+            color="bg-primary-light text-primary"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/scamalerts')}
+            icon={AlertTriangle}
+            label="Scam alerts"
+            description="Latest phone and online scams"
+            color="bg-orange-50 text-orange-600"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/fbsafety')}
+            icon={ShieldCheck}
+            label="FB safety"
+            description="Secure your Facebook account"
+            color="bg-blue-50 text-blue-600"
+          />
+        </div>
+      </section>
+    </PageLayout>
+  );
+};
+
+const PhoneView: React.FC = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <PageLayout title="Phone">
+      <section className="space-y-6">
+        <div className="px-1">
+          <h2 className="text-lg font-bold">Device tools</h2>
+          <p className="text-sm text-text-muted mt-1">Optimize your device performance and find the best deals.</p>
+        </div>
+        <div className="space-y-4">
+          <ToolButton 
+            onClick={() => navigate('/tool/search')}
+            icon={Smartphone}
+            label="Phone search"
+            description="Identify your device model"
+            color="bg-primary-light text-primary"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/tips')}
+            icon={Zap}
+            label="Performance"
+            description="Clean up and speed up"
+            color="bg-purple-50 text-purple-600"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/adblock')}
+            icon={Ban}
+            label="Ad blocker"
+            description="Stop annoying pop-ups"
+            color="bg-red-50 text-red-600"
+          />
+          <ToolButton 
+            onClick={() => navigate('/tool/deals')}
+            icon={Tag}
+            label="Deals"
+            description="Exclusive senior discounts"
+            color="bg-accent-tint text-accent"
+          />
+        </div>
+      </section>
+    </PageLayout>
+  );
+};
+
+const HelpView: React.FC = () => {
+  const navigate = useNavigate();
+  const [selectedDevice, setSelectedDevice] = useState<DeviceBrand | null>(null);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const handleDeviceSelect = (brand: DeviceBrand) => {
     hapticFeedback.medium();
@@ -65,421 +356,123 @@ const Home: React.FC = () => {
     }, 100);
   };
 
-  const toggleLargeText = () => {
-    hapticFeedback.light();
-    setIsLargeText(!isLargeText);
-  };
-
-  const handleToolChange = (tool: string) => {
-    hapticFeedback.light();
-    navigate(`/tool/${tool}`, { state: { selectedDevice } });
-  };
-
   return (
-    <div className="min-h-screen text-text-main flex flex-col font-sans transition-colors duration-300 max-w-[430px] mx-auto w-full relative shadow-2xl" style={{ backgroundColor: '#F5EDD8' }}>
-      {/* Soft Top Bar */}
-      <div className="bg-secondary border-b border-border-main py-4 px-4 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white font-black text-lg md:text-xl">R</span>
+    <PageLayout title="Help">
+      <section className="space-y-10">
+        {/* Device Selection */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-1">
+            <div>
+              <h2 className="text-lg font-bold">Device help</h2>
+              <p className="text-sm text-text-muted mt-1">Select your phone brand to get started.</p>
             </div>
-            <span className="text-lg md:text-xl font-bold tracking-tight text-text-main">RescueKit</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary-light px-3 py-1 rounded-full">Step 1</span>
           </div>
-          
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* Accessibility Controls */}
-            <div className="flex bg-surface p-1 rounded-full gap-1 border border-border-main">
-              <button 
-                onClick={toggleLargeText}
-                className={`px-3 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all ${
-                  isLargeText ? 'bg-primary shadow-md text-white' : 'text-text-main hover:text-primary'
+          <div className="grid grid-cols-2 gap-4">
+            {(Object.values(DeviceBrand)).map((brand) => (
+              <button
+                key={brand}
+                onClick={() => handleDeviceSelect(brand)}
+                className={`btn-tactile h-20 text-base font-bold transition-all ${
+                  selectedDevice === brand 
+                  ? 'bg-primary text-white border-primary shadow-lg shadow-primary/10 scale-[1.02]' 
+                  : 'bg-white border border-border-main text-text-main hover:border-primary/30'
                 }`}
-                title="Toggle Large Text"
               >
-                AA
+                {brand}
               </button>
-            </div>
-
-            <div className="hidden sm:flex gap-4 md:gap-6 font-bold text-[10px] md:text-sm uppercase tracking-widest text-text-muted ml-2 md:ml-4">
-              <a href="#" className="hover:text-primary transition-colors">Guide</a>
-              <a href="#" className="hover:text-primary transition-colors">Security</a>
-              <button 
-                onClick={() => {
-                  handleToolChange('deals');
-                  document.getElementById('tool-tabs')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="hover:text-primary transition-colors uppercase"
-              >
-                Deals
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
-        {/* Hero Section - More Compact */}
-        <header className="text-center mb-6 md:mb-10">
-          <div className="inline-block px-4 py-1.5 bg-[#4A4F3E] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-6">
-            Trusted by 50,000+ Seniors
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-4 md:mb-6 leading-tight tracking-tight text-[#4A4F3E]">
-            Your Phone, <span className="text-[#8B6914]">Simplified.</span>
-          </h1>
-          <p className="text-base md:text-xl text-[#4A4F3E] mb-6 md:mb-8 max-w-2xl mx-auto font-medium leading-relaxed px-2">
-            Stop annoying ads and speed up your device in minutes. 
-            Choose your brand to begin.
-          </p>
-
-          {/* Mini Dashboard - Slimmer & Horizontal Scroll on Mobile */}
-          <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap justify-center gap-4 mb-8 md:mb-12 no-scrollbar">
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="text-text-main font-black text-2xl md:text-3xl">98%</span>
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-tight text-text-muted leading-tight text-left">Safety<br/>Secure</span>
-            </div>
-            <div className="w-px h-8 bg-[#4A4F3E]/20"></div>
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="text-text-main font-black text-2xl md:text-3xl">0</span>
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-tight text-text-muted leading-tight text-left">Threats<br/>Clean</span>
-            </div>
-            <div className="w-px h-8 bg-[#4A4F3E]/20"></div>
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="text-text-main font-black text-2xl md:text-3xl">2m</span>
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-tight text-text-muted leading-tight text-left">Fix Time<br/>Fast</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Device Selector - Slimmer Buttons */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }} className="mb-8 md:mb-12 max-w-2xl mx-auto">
-          {(Object.values(DeviceBrand)).map((brand) => (
-            <button
-              key={brand}
-              onClick={() => handleDeviceSelect(brand)}
-              className={`transition-all group ${
-                selectedDevice === brand 
-                ? 'opacity-80 scale-[1.02]' 
-                : 'hover:opacity-90'
-              }`}
-              style={{
-                height: '52px',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '15px',
-                fontWeight: 700,
-                letterSpacing: '0.05em',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                borderRadius: '50px',
-                backgroundColor: '#C8D4A8',
-                border: '2px solid #7A8C5A',
-                color: '#3A4A2A'
-              }}
-            >
-              {brand}
-            </button>
-          ))}
-        </div>
-
-        {/* Dynamic Rescue Content - Tightened spacing */}
-        <div className="space-y-6 md:space-y-8">
-          {selectedDevice && (
-            <RescueGuide instruction={DEVICE_INSTRUCTIONS[selectedDevice]} />
-          )}
-
-          {/* Tool Tabs for Mobile Optimization */}
-          <div id="tool-tabs" className="mb-8">
-            <div className="grid grid-cols-2 gap-[12px] mb-8">
-              <button 
-                onClick={() => handleToolChange('checker')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🔍</span>
-                APP CHECKER
-              </button>
-              <button 
-                onClick={() => handleToolChange('search')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">📱</span>
-                PHONE SEARCH
-              </button>
-              <button 
-                onClick={() => handleToolChange('deals')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🏷️</span>
-                DEALS
-              </button>
-              <button 
-                onClick={() => handleToolChange('adblock')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🚫</span>
-                AD BLOCKER
-              </button>
-              <button 
-                onClick={() => handleToolChange('tips')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">⚡</span>
-                PERFORMANCE
-              </button>
-              <button 
-                onClick={() => handleToolChange('fbsafety')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🛡️</span>
-                FB SAFETY
-              </button>
-              <button 
-                onClick={() => handleToolChange('linkcheck')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🔗</span>
-                LINK CHECKER
-              </button>
-              <button 
-                onClick={() => handleToolChange('scamalerts')}
-                className="transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">⚠️</span>
-                SCAM ALERTS
-              </button>
-              <button 
-                onClick={() => handleToolChange('games')}
-                className="col-span-2 transition-all shadow-md hover:opacity-90"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  height: '80px',
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textAlign: 'center',
-                  backgroundColor: '#8B6914',
-                  borderRadius: '16px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span className="text-2xl">🎮</span>
-                SAFE GAMES
-              </button>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Modern CTA Section - More Compact on Mobile */}
-        <section className="mt-12 md:mt-20 relative overflow-hidden bg-primary text-white p-8 md:p-16 rounded-[2rem] md:rounded-[3rem] shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white blur-[120px] opacity-20 -mr-32 -mt-32"></div>
-          <div className="relative z-10 text-center flex justify-center">
-            <Button 
-              variant="primary" 
-              onClick={() => {
-                if (window.confirm('This feature is coming soon! Would you like to be notified when it is available?')) {
-                  // Do nothing for now
-                }
-              }}
-              className="!bg-white !text-primary !border-none !rounded-full px-8 md:px-10 py-4 md:py-5 text-sm md:text-base shadow-xl font-bold uppercase"
-            >
-              COMING SOON
-            </Button>
-          </div>
-        </section>
-      </main>
-
-      {/* Modern Footer - Compact */}
-      <footer className="bg-secondary py-12 px-4 border-t border-border-main">
-        <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-6">
-          <div>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-black text-xs md:text-sm">R</span>
-              </div>
-              <span className="text-base md:text-lg font-bold tracking-tight text-text-main">RescueKit</span>
+        {/* Rescue Content */}
+        {selectedDevice && (
+          <div id="guide" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between px-1 mb-6">
+              <h2 className="text-lg font-bold">Instructions</h2>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary-light px-3 py-1 rounded-full">Step 2</span>
             </div>
-            <p className="text-[#4A4F3E] max-w-sm mx-auto text-sm font-medium">
-              Dedicated to making technology accessible and safe for everyone, regardless of age.
-            </p>
+            <div className="card-premium p-1">
+              <RescueGuide instruction={DEVICE_INSTRUCTIONS[selectedDevice]} />
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-[10px] md:text-sm font-bold uppercase tracking-widest text-[#4A4F3E]">
-            <button 
+        )}
+
+        {/* Other Help Items */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold px-1">Support & Fun</h2>
+          <div className="space-y-4">
+            <ToolButton 
+              onClick={() => navigate('/tool/games')}
+              icon={Gamepad2}
+              label="Safe games"
+              description="Play without risk"
+              color="bg-pink-50 text-pink-600"
+            />
+            <ToolButton 
               onClick={() => setIsAboutOpen(true)}
-              className="hover:text-primary transition-colors uppercase tracking-widest"
-            >
-              About
-            </button>
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-primary transition-colors">Contact</a>
-            <a href="#" className="hover:text-primary transition-colors">Families</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms</a>
+              icon={Info}
+              label="About RescueKit"
+              description="Learn about our mission"
+              color="bg-slate-100 text-slate-600"
+            />
           </div>
         </div>
-        <div className="max-w-5xl mx-auto mt-8 md:mt-12 pt-6 md:pt-8 border-t border-[#4A4F3E]/20 text-center text-[8px] md:text-xs text-[#4A4F3E] font-bold uppercase tracking-[0.2em]">
-          © 2024 SENIOR ANDROID RESCUE KIT • HANDCRAFTED FOR YOU
-        </div>
-      </footer>
 
+        {/* Coming Soon Section */}
+        <section className="py-12 flex flex-col items-center justify-center space-y-4 border-t border-border-main/30">
+          <div className="w-12 h-1 bg-primary-light rounded-full"></div>
+          <div className="px-6 py-2 bg-bg-secondary text-text-subtle rounded-full font-black text-[10px] uppercase tracking-[0.3em] border border-border-main/50 shadow-sm">
+            COMING SOON
+          </div>
+          <p className="text-[10px] font-bold text-text-subtle uppercase tracking-widest text-center">More tools in development</p>
+        </section>
+      </section>
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-    </div>
+    </PageLayout>
   );
+};
+
+const AppCheckerWrapper = () => {
+  const location = useLocation();
+  return <AppChecker selectedDevice={location.state?.selectedDevice || null} />;
+};
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 };
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
+      <Toaster position="top-center" richColors />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomeView />} />
+        <Route path="/safety" element={<SafetyView />} />
+        <Route path="/phone" element={<PhoneView />} />
+        <Route path="/help" element={<HelpView />} />
+        
         <Route path="/admin" element={<Admin />} />
-        <Route path="/tool/checker" element={<FeaturePage title="App Checker"><AppCheckerWrapper /></FeaturePage>} />
-        <Route path="/tool/search" element={<FeaturePage title="Phone Search"><PhoneSearch /></FeaturePage>} />
-        <Route path="/tool/deals" element={<FeaturePage title="Deals"><Deals /></FeaturePage>} />
-        <Route path="/tool/adblock" element={<FeaturePage title="Ad Blocker"><AdBlockerInfo /></FeaturePage>} />
-        <Route path="/tool/tips" element={<FeaturePage title="Performance"><PerformanceTips /></FeaturePage>} />
-        <Route path="/tool/fbsafety" element={<FeaturePage title="FB Safety"><FBSafety /></FeaturePage>} />
-        <Route path="/tool/linkcheck" element={<FeaturePage title="Link Checker"><LinkCheck /></FeaturePage>} />
-        <Route path="/tool/scamalerts" element={<FeaturePage title="Scam Alerts"><ScamAlerts /></FeaturePage>} />
-        <Route path="/tool/games" element={<FeaturePage title="Safe Games"><SafeGames /></FeaturePage>} />
+        
+        <Route path="/tool/checker" element={<FeaturePage title="App Checker" backPath="/safety"><AppCheckerWrapper /></FeaturePage>} />
+        <Route path="/tool/search" element={<FeaturePage title="Phone Search" backPath="/phone"><PhoneSearch /></FeaturePage>} />
+        <Route path="/tool/deals" element={<FeaturePage title="Deals" backPath="/phone"><Deals /></FeaturePage>} />
+        <Route path="/tool/adblock" element={<FeaturePage title="Ad Blocker" backPath="/phone"><AdBlockerInfo /></FeaturePage>} />
+        <Route path="/tool/tips" element={<FeaturePage title="Performance" backPath="/phone"><PerformanceTips /></FeaturePage>} />
+        <Route path="/tool/fbsafety" element={<FeaturePage title="FB Safety" backPath="/safety"><FBSafety /></FeaturePage>} />
+        <Route path="/tool/linkcheck" element={<FeaturePage title="Link Checker" backPath="/safety"><LinkCheck /></FeaturePage>} />
+        <Route path="/tool/scamalerts" element={<FeaturePage title="Scam Alerts" backPath="/safety"><ScamAlerts /></FeaturePage>} />
+        <Route path="/tool/games" element={<FeaturePage title="Safe Games" backPath="/help"><SafeGames /></FeaturePage>} />
       </Routes>
     </BrowserRouter>
   );
 };
 
 export default App;
+
 

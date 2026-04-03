@@ -1,8 +1,23 @@
+
 import React, { useState } from 'react';
-import Groq from "groq-sdk";
-import { getGroqApiKey } from "../utils/apiKey";
+import { GoogleGenAI, Type } from "@google/genai";
+import { getGeminiApiKey } from "../utils/apiKey";
 import { searchCache } from "../utils/cache";
 import { hapticFeedback } from '../utils/haptics';
+import { 
+  Link2, 
+  ShieldCheck, 
+  ShieldAlert, 
+  ShieldQuestion, 
+  X, 
+  Loader2, 
+  Search, 
+  Lightbulb,
+  ArrowRight,
+  CheckCircle2,
+  AlertTriangle,
+  AlertCircle
+} from 'lucide-react';
 
 type ResultType = 'safe' | 'dangerous' | 'unknown' | null;
 
@@ -17,7 +32,6 @@ const LinkCheck: React.FC = () => {
     if (!input.trim()) {
       return "Please paste a link first.";
     }
-    // Basic check for URL-like structure (contains a dot, no spaces, or starts with http)
     const urlPattern = /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}/i;
     if (!urlPattern.test(input.trim())) {
       return "That doesn't look like a link. Try copying it again.";
@@ -54,52 +68,49 @@ const LinkCheck: React.FC = () => {
         setResult('unknown');
         hapticFeedback.warning();
       }
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-
     try {
-      // Ensure URL has protocol for the API
       let urlToCheck = url.trim();
       if (!/^https?:\/\//i.test(urlToCheck)) {
         urlToCheck = 'http://' + urlToCheck;
       }
 
-      const apiKey = getGroqApiKey();
+      const apiKey = getGeminiApiKey();
       if (!apiKey) {
         setError("API key is missing. Please configure the application.");
+        setLoading(false);
         return;
       }
-      const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+      const ai = new GoogleGenAI({ apiKey });
       
-      const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "system",
-            content: `You are an AI that analyzes URL safety. You must respond in valid JSON matching this schema:
-{
-  "status": "safe" | "dangerous" | "unknown",
-  "threatType": "string" // If dangerous, a short description of the threat (e.g., 'Phishing', 'Malware'). Otherwise, leave empty or null.
-}`
-          },
-          {
-            role: "user",
-            content: `Quickly check URL safety: ${urlToCheck}. 
-            Status: safe, dangerous, or unknown.
-            Threat: If dangerous, name the threat (e.g., Phishing).`
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Quickly check URL safety: ${urlToCheck}. 
+        Status: safe, dangerous, or unknown.
+        Threat: If dangerous, name the threat (e.g., Phishing).`,
+        config: {
+          systemInstruction: "You are an AI that analyzes URL safety. You must respond in valid JSON.",
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              status: { type: Type.STRING, enum: ["safe", "dangerous", "unknown"] },
+              threatType: { type: Type.STRING, description: "If dangerous, a short description of the threat (e.g., 'Phishing', 'Malware'). Otherwise, leave empty or null." }
+            },
+            required: ["status", "threatType"]
           }
-        ],
-        response_format: { type: "json_object" }
+        }
       });
 
-      const responseText = response.choices[0]?.message?.content;
+      const responseText = response.text;
       if (!responseText) {
-        throw new Error("Empty response from Groq");
+        throw new Error("Empty response from Gemini");
       }
 
-      const data = JSON.parse(responseText);
+      const data = JSON.parse(responseText.trim());
       searchCache.set(cacheKey, data);
 
       if (data.status === 'dangerous') {
@@ -131,14 +142,24 @@ const LinkCheck: React.FC = () => {
   };
 
   return (
-    <div className="p-6 md:p-10">
-      <h2 className="text-2xl md:text-[28px] font-bold mb-2 text-text-main">Is This Link Safe?</h2>
-      <p className="mb-8 md:mb-10 text-text-muted text-sm md:text-base font-medium">
-        Copy and paste any link or web address below to check if it's a scam, virus, or unsafe website.
-      </p>
+    <div className="p-6 md:p-10 space-y-12">
+      <div className="space-y-2">
+        <h2 className="text-2xl md:text-[32px] font-bold text-text-main flex items-center gap-4">
+          <div className="p-3 bg-white rounded-2xl shadow-sm border border-border-main">
+            <Link2 className="text-primary" size={28} />
+          </div>
+          Is This Link Safe?
+        </h2>
+        <p className="text-text-muted text-lg font-medium">
+          Copy and paste any link or web address below to check if it's a scam, virus, or unsafe website.
+        </p>
+      </div>
 
-      <div className="mb-8 md:mb-10">
-        <div className="relative mb-4">
+      <div className="space-y-6">
+        <div className="relative group">
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
+            <Link2 size={24} />
+          </div>
           <input
             type="text"
             placeholder="Paste your link here..."
@@ -147,21 +168,21 @@ const LinkCheck: React.FC = () => {
               setUrl(e.target.value);
               setError(null);
             }}
-            className={`w-full pl-6 pr-14 py-4 md:py-5 min-h-[56px] text-base md:text-lg bg-white border rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary/20 transition-all outline-none shadow-[0_4px_12px_rgba(0,0,0,0.06)] ${
-              error ? 'border-destructive' : 'border-border-main'
+            className={`w-full pl-16 pr-14 py-6 text-lg bg-white border rounded-3xl focus:ring-8 focus:ring-primary/5 focus:border-primary/20 transition-all outline-none shadow-sm ${
+              error ? 'border-rose-300' : 'border-border-main'
             }`}
           />
           {url && (
             <button
               onClick={handleClear}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main bg-surface-muted rounded-full transition-colors font-bold text-sm"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-rose-500 bg-bg-main rounded-2xl transition-all"
               aria-label="Clear input"
             >
-              ✕
+              <X size={20} />
             </button>
           )}
           {error && (
-            <p className="absolute -bottom-6 left-2 text-[10px] font-bold text-destructive uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
+            <p className="absolute -bottom-7 left-6 text-xs font-black text-rose-500 uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
               {error}
             </p>
           )}
@@ -170,37 +191,40 @@ const LinkCheck: React.FC = () => {
         <button
           onClick={handleCheck}
           disabled={loading}
-          className="w-full py-4 md:py-5 px-6 bg-[#6C63FF] text-white font-black rounded-full shadow-lg shadow-primary/30 hover:bg-[#5A52E0] transition-all active:scale-95 disabled:opacity-50 text-base md:text-lg flex items-center justify-center gap-2"
+          className="w-full py-6 px-8 btn-primary text-lg flex items-center justify-center gap-3 group"
         >
           {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <Loader2 className="animate-spin" size={24} />
           ) : (
             <>
-              <span>🛡️</span>
+              <ShieldCheck size={24} />
               <span>Verify the link</span>
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
             </>
           )}
         </button>
       </div>
 
       {loading && (
-        <div className="flex flex-col items-center justify-center py-8 space-y-4">
-          <div className="w-12 h-12 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
-          <p className="text-text-muted font-bold animate-pulse text-sm">Checking your link...</p>
+        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <div className="p-6 bg-white rounded-full shadow-sm border border-border-main">
+            <Loader2 className="animate-spin text-primary" size={48} />
+          </div>
+          <p className="text-text-muted font-bold animate-pulse text-lg">Checking your link...</p>
         </div>
       )}
 
       {result && !loading && (
-        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {result === 'safe' && (
-            <div className="p-6 md:p-8 rounded-2xl border bg-emerald-600/10 border-emerald-600/20 shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-xl md:text-2xl shadow-md">
-                  ✅
+            <div className="card-premium p-8 bg-emerald-50 border-emerald-100 shadow-sm">
+              <div className="flex items-start gap-6">
+                <div className="w-14 h-14 flex-shrink-0 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                  <CheckCircle2 size={32} />
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-emerald-700 mb-2">This Link Looks Safe</h3>
-                  <p className="text-sm md:text-base font-medium text-emerald-800/80 leading-relaxed">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-emerald-900">This Link Looks Safe</h3>
+                  <p className="text-lg font-medium text-emerald-800/70 leading-relaxed">
                     No threats were detected. However, always be cautious about what personal information you share.
                   </p>
                 </div>
@@ -209,20 +233,21 @@ const LinkCheck: React.FC = () => {
           )}
 
           {result === 'dangerous' && (
-            <div className="p-6 md:p-8 rounded-2xl border bg-destructive/10 border-destructive/20 shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-destructive text-white rounded-2xl flex items-center justify-center text-xl md:text-2xl shadow-md">
-                  🚨
+            <div className="card-premium p-8 bg-rose-50 border-rose-100 shadow-sm">
+              <div className="flex items-start gap-6">
+                <div className="w-14 h-14 flex-shrink-0 bg-rose-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-rose-600/20">
+                  <ShieldAlert size={32} />
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-destructive mb-2">WARNING: Do Not Open This Link!</h3>
-                  <p className="text-sm md:text-base font-medium text-destructive/80 leading-relaxed">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-rose-900">WARNING: Do Not Open!</h3>
+                  <p className="text-lg font-medium text-rose-800/70 leading-relaxed">
                     This link has been flagged as dangerous, a scam, or contains malware. Delete it immediately.
                   </p>
                   {threatType && (
-                    <p className="mt-3 text-xs font-bold uppercase tracking-widest text-destructive/60">
-                      Threat detected: {threatType}
-                    </p>
+                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-rose-600/10 text-rose-600 rounded-lg text-xs font-black uppercase tracking-widest">
+                      <AlertCircle size={14} />
+                      Threat: {threatType}
+                    </div>
                   )}
                 </div>
               </div>
@@ -230,14 +255,14 @@ const LinkCheck: React.FC = () => {
           )}
 
           {result === 'unknown' && (
-            <div className="p-6 md:p-8 rounded-2xl border bg-amber-500/10 border-amber-500/20 shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-amber-500 text-white rounded-2xl flex items-center justify-center text-xl md:text-2xl shadow-md">
-                  ⚠️
+            <div className="card-premium p-8 bg-amber-50 border-amber-100 shadow-sm">
+              <div className="flex items-start gap-6">
+                <div className="w-14 h-14 flex-shrink-0 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                  <ShieldQuestion size={32} />
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-amber-600 mb-2">Proceed With Caution</h3>
-                  <p className="text-sm md:text-base font-medium text-amber-700/80 leading-relaxed">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-amber-900">Proceed With Caution</h3>
+                  <p className="text-lg font-medium text-amber-800/70 leading-relaxed">
                     We couldn't fully verify this link. Do not enter any personal information if you open it.
                   </p>
                 </div>
@@ -247,14 +272,14 @@ const LinkCheck: React.FC = () => {
         </div>
       )}
 
-      <div className="p-6 md:p-8 bg-[#D6D0F5]/30 rounded-2xl border border-border-main shadow-sm flex items-start gap-4">
-        <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 bg-primary/10 text-primary rounded-2xl flex items-center justify-center text-xl md:text-2xl">
-          💡
+      <div className="card-premium p-8 bg-white border border-border-main shadow-sm flex items-start gap-6 group">
+        <div className="p-4 bg-primary/5 rounded-2xl text-primary group-hover:scale-110 transition-transform">
+          <Lightbulb size={32} />
         </div>
-        <div>
-          <h4 className="font-bold text-primary text-lg md:text-xl mb-2">Quick Tip</h4>
-          <p className="text-sm md:text-base text-text-muted leading-relaxed font-medium">
-            Scam links often look like real websites but have small spelling differences. Example: 'Faceb00k.com' instead of 'Facebook.com'. When in doubt — don't tap it!
+        <div className="space-y-2">
+          <h4 className="font-bold text-text-main text-xl">Quick Tip</h4>
+          <p className="text-base text-text-muted leading-relaxed font-medium">
+            Scam links often look like real websites but have small spelling differences. Example: <span className="text-rose-500 font-bold">'Faceb00k.com'</span> instead of <span className="text-emerald-600 font-bold">'Facebook.com'</span>. When in doubt — don't tap it!
           </p>
         </div>
       </div>

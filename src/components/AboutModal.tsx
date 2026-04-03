@@ -1,6 +1,18 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { 
+  X, 
+  Heart, 
+  BookOpen, 
+  ShieldCheck, 
+  Search, 
+  Zap, 
+  CheckCircle2, 
+  Users,
+  Smartphone,
+  Info
+} from 'lucide-react';
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -18,7 +30,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-[#1A3B4A]/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-text-main/60 backdrop-blur-md"
           />
           
           {/* Modal Content */}
@@ -26,80 +38,120 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl bg-surface rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-border-main"
+            className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-border-main"
           >
             {/* Header */}
-            <div className="p-6 md:p-8 border-b border-border-main flex justify-between items-center bg-surface-muted">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg md:rounded-xl flex items-center justify-center">
-                  <span className="text-white font-black text-base md:text-xl">R</span>
+            <div className="p-8 border-b border-border-main flex justify-between items-center bg-bg-main/50 backdrop-blur-sm sticky top-0 z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                  <span className="text-white font-black text-2xl">R</span>
                 </div>
-                <h2 className="text-xl md:text-2xl font-extrabold text-text-main">About RescueKit</h2>
+                <div className="space-y-0.5">
+                  <h2 className="text-2xl font-bold text-text-main">About RescueKit</h2>
+                  <p className="text-xs font-bold uppercase tracking-widest text-primary">Our Mission & Values</p>
+                </div>
               </div>
               <button 
                 onClick={onClose}
-                className="w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-surface-muted flex items-center justify-center transition-colors text-text-muted hover:text-text-main"
+                className="w-12 h-12 rounded-2xl bg-bg-main border border-border-main flex items-center justify-center transition-all text-text-muted hover:text-text-main hover:shadow-sm active:scale-95"
               >
-                ✕
+                <X size={24} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-6 md:p-8 overflow-y-auto space-y-6 md:space-y-8">
-              <section>
-                <h3 className="text-lg md:text-xl font-bold text-text-main mb-2 md:mb-3">Our Mission</h3>
-                <p className="text-sm md:text-base text-text-muted leading-relaxed">
-                  The Senior Android Rescue Kit was created with one goal: to make technology less frustrating for older adults. We believe that everyone deserves a phone that works smoothly, without being bombarded by confusing ads or slowed down by unnecessary apps.
+            <div className="p-8 md:p-10 overflow-y-auto space-y-12">
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 text-primary">
+                  <Heart size={24} fill="currentColor" className="opacity-20" />
+                  <h3 className="text-xl font-bold text-text-main">Our Mission</h3>
+                </div>
+                <p className="text-lg text-text-muted leading-relaxed font-medium">
+                  RescueKit was created with one goal: to make technology less frustrating for older adults. We believe that everyone deserves a phone that works smoothly, without being bombarded by confusing ads or slowed down by unnecessary apps.
                 </p>
               </section>
 
-              <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                <div className="p-4 md:p-5 bg-primary/10 rounded-xl md:rounded-2xl border border-primary/20">
-                  <div className="text-xl md:text-2xl mb-1 md:mb-2">📖</div>
-                  <h4 className="font-bold text-sm md:text-base text-primary mb-0.5 md:mb-1">Step-by-Step Guides</h4>
-                  <p className="text-xs text-text-muted">Clear instructions tailored to your specific phone brand.</p>
+              <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="card-premium p-6 bg-primary/5 border-primary/10 space-y-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm">
+                    <BookOpen size={24} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-text-main">Step-by-Step Guides</h4>
+                    <p className="text-sm text-text-muted font-medium">Clear instructions tailored to your specific phone brand.</p>
+                  </div>
                 </div>
-                <div className="p-4 md:p-5 bg-emerald-500/10 rounded-xl md:rounded-2xl border border-emerald-500/20">
-                  <div className="text-xl md:text-2xl mb-1 md:mb-2">🛡️</div>
-                  <h4 className="font-bold text-sm md:text-base text-emerald-500 mb-0.5 md:mb-1">Ad Blocking</h4>
-                  <p className="text-xs text-text-muted">Simple ways to stop annoying pop-ups without installing new apps.</p>
+                <div className="card-premium p-6 bg-emerald-50 border-emerald-100 space-y-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-text-main">Ad Blocking</h4>
+                    <p className="text-sm text-text-muted font-medium">Simple ways to stop annoying pop-ups without installing new apps.</p>
+                  </div>
                 </div>
-                <div className="p-4 md:p-5 bg-amber-500/10 rounded-xl md:rounded-2xl border border-amber-500/20">
-                  <div className="text-xl md:text-2xl mb-1 md:mb-2">🔍</div>
-                  <h4 className="font-bold text-sm md:text-base text-amber-500 mb-0.5 md:mb-1">App Safety Check</h4>
-                  <p className="text-xs text-text-muted">Instantly find out if an app is safe or if it's slowing you down.</p>
+                <div className="card-premium p-6 bg-amber-50 border-amber-100 space-y-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-amber-600 shadow-sm">
+                    <Search size={24} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-text-main">App Safety Check</h4>
+                    <p className="text-sm text-text-muted font-medium">Instantly find out if an app is safe or if it's slowing you down.</p>
+                  </div>
                 </div>
-                <div className="p-4 md:p-5 bg-rose-500/10 rounded-xl md:rounded-2xl border border-rose-500/20">
-                  <div className="text-xl md:text-2xl mb-1 md:mb-2">⚡</div>
-                  <h4 className="font-bold text-sm md:text-base text-rose-500 mb-0.5 md:mb-1">Performance Tips</h4>
-                  <p className="text-xs text-text-muted">Easy habits to keep your device running like new.</p>
+                <div className="card-premium p-6 bg-purple-50 border-purple-100 space-y-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-purple-600 shadow-sm">
+                    <Zap size={24} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-text-main">Performance Tips</h4>
+                    <p className="text-sm text-text-muted font-medium">Easy habits to keep your device running like new.</p>
+                  </div>
                 </div>
               </section>
 
-              <section>
-                <h3 className="text-lg md:text-xl font-bold text-text-main mb-2 md:mb-3">How It Helps</h3>
-                <ul className="space-y-2 md:space-y-3">
-                  <li className="flex items-start gap-2 md:gap-3 text-xs md:text-sm text-text-muted">
-                    <span className="text-primary font-bold">•</span>
-                    <span><strong className="text-text-main">Simplifies Complexity:</strong> We translate "tech-speak" into plain English.</span>
-                  </li>
-                  <li className="flex items-start gap-2 md:gap-3 text-xs md:text-sm text-text-muted">
-                    <span className="text-primary font-bold">•</span>
-                    <span><strong className="text-text-main">Empowers Users:</strong> Learn how to manage your own device settings safely.</span>
-                  </li>
-                  <li className="flex items-start gap-2 md:gap-3 text-xs md:text-sm text-text-muted">
-                    <span className="text-primary font-bold">•</span>
-                    <span><strong className="text-text-main">Protects Privacy:</strong> We show you how to block trackers and avoid scammy apps.</span>
-                  </li>
-                </ul>
+              <section className="space-y-6">
+                <div className="flex items-center gap-3 text-primary">
+                  <CheckCircle2 size={24} className="opacity-40" />
+                  <h3 className="text-xl font-bold text-text-main">How It Helps</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-bg-main border border-border-main/50">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-primary shadow-sm flex-shrink-0">
+                      <Info size={16} />
+                    </div>
+                    <p className="text-base text-text-muted font-medium leading-relaxed">
+                      <strong className="text-text-main block mb-1">Simplifies Complexity</strong>
+                      We translate "tech-speak" into plain English that anyone can understand.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-bg-main border border-border-main/50">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-primary shadow-sm flex-shrink-0">
+                      <Users size={16} />
+                    </div>
+                    <p className="text-base text-text-muted font-medium leading-relaxed">
+                      <strong className="text-text-main block mb-1">Empowers Users</strong>
+                      Learn how to manage your own device settings safely and confidently.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-bg-main border border-border-main/50">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-primary shadow-sm flex-shrink-0">
+                      <Smartphone size={16} />
+                    </div>
+                    <p className="text-base text-text-muted font-medium leading-relaxed">
+                      <strong className="text-text-main block mb-1">Protects Privacy</strong>
+                      We show you how to block trackers and avoid scammy apps effectively.
+                    </p>
+                  </div>
+                </div>
               </section>
             </div>
 
             {/* Footer */}
-            <div className="p-6 md:p-8 bg-surface-muted border-t border-border-main text-center">
+            <div className="p-8 bg-bg-main/50 backdrop-blur-sm border-t border-border-main text-center sticky bottom-0 z-10">
               <button 
                 onClick={onClose}
-                className="bg-primary text-white px-8 md:px-10 py-3 md:py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 text-sm md:text-base"
+                className="btn-tactile btn-primary px-12 py-4 text-lg shadow-xl shadow-primary/20"
               >
                 Got it, thanks!
               </button>

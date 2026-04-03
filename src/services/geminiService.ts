@@ -1,6 +1,6 @@
 
-import Groq from "groq-sdk";
-import { getGroqApiKey } from "../utils/apiKey";
+import { GoogleGenAI, Type } from "@google/genai";
+import { getGeminiApiKey } from "../utils/apiKey";
 import { searchCache } from "../utils/cache";
 
 export const checkAppSafety = async (appName: string) => {
@@ -8,38 +8,39 @@ export const checkAppSafety = async (appName: string) => {
   const cachedResult = searchCache.get(cacheKey);
   if (cachedResult) return cachedResult;
 
-  const apiKey = getGroqApiKey();
-  if (!apiKey) return null;
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    console.error("Gemini API key is missing.");
+    return null;
+  }
   
-  const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+  const ai = new GoogleGenAI({ apiKey });
 
   try {
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI that analyzes Android app safety. You must respond in valid JSON matching this schema:
-{
-  "name": "string",
-  "status": "safe" | "warning" | "danger",
-  "reason": "string",
-  "alternative": "string",
-  "score": number
-}`
-        },
-        {
-          role: "user",
-          content: `Quickly analyze Android app safety: "${appName}". 
-          Status: safe, warning (ads/bloat), or danger (malware/scam).
-          Score: 0-100.
-          Suggest 1 safe alternative if not safe.`
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Quickly analyze Android app safety: "${appName}". 
+      Status: safe, warning (ads/bloat), or danger (malware/scam).
+      Score: 0-100.
+      Suggest 1 safe alternative if not safe.`,
+      config: {
+        systemInstruction: "You are an AI that analyzes Android app safety. You must respond in valid JSON.",
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            status: { type: Type.STRING, enum: ["safe", "warning", "danger"] },
+            reason: { type: Type.STRING },
+            alternative: { type: Type.STRING },
+            score: { type: Type.NUMBER }
+          },
+          required: ["name", "status", "reason", "alternative", "score"]
         }
-      ],
-      response_format: { type: "json_object" }
+      }
     });
 
-    const text = response.choices[0]?.message?.content;
+    const text = response.text;
     if (text) {
       const result = JSON.parse(text.trim());
       searchCache.set(cacheKey, result);

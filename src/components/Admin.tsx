@@ -1,5 +1,25 @@
+
 import React, { useState, useEffect } from 'react';
 import { Deal, getDeals, addDeal, updateDeal, deleteDeal } from '../utils/firebase';
+import { toast } from 'sonner';
+import { 
+  Lock, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  ArrowLeft, 
+  Save, 
+  X, 
+  ShoppingBag, 
+  Tag, 
+  Link as LinkIcon, 
+  Image as ImageIcon,
+  Loader2,
+  ExternalLink,
+  ChevronRight,
+  RefreshCw,
+  AlertCircle
+} from 'lucide-react';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -7,6 +27,7 @@ const Admin: React.FC = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     storeName: '',
@@ -23,8 +44,9 @@ const Admin: React.FC = () => {
     if (password === adminPassword) {
       setIsAuthenticated(true);
       fetchDeals();
+      toast.success('Logged in successfully');
     } else {
-      alert('Incorrect password');
+      toast.error('Incorrect password');
     }
   };
 
@@ -35,6 +57,7 @@ const Admin: React.FC = () => {
       setDeals(fetchedDeals);
     } catch (error) {
       console.error("Error fetching deals:", error);
+      toast.error('Error fetching deals');
     } finally {
       setLoading(false);
     }
@@ -62,8 +85,10 @@ const Admin: React.FC = () => {
 
       if (editingDeal && editingDeal.id) {
         await updateDeal(editingDeal.id, dealData);
+        toast.success('Deal updated successfully');
       } else {
         await addDeal(dealData);
+        toast.success('Deal published successfully');
       }
       
       setFormData({
@@ -79,7 +104,7 @@ const Admin: React.FC = () => {
       await fetchDeals();
     } catch (error) {
       console.error("Error saving deal:", error);
-      alert('Error saving deal');
+      toast.error('Error saving deal');
     } finally {
       setLoading(false);
     }
@@ -96,148 +121,223 @@ const Admin: React.FC = () => {
       imageUrl: deal.imageUrl || '',
       affiliateLink: deal.affiliateLink
     });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this deal?')) {
-      setLoading(true);
-      try {
-        await deleteDeal(id);
-        await fetchDeals();
-      } catch (error) {
-        console.error("Error deleting deal:", error);
-        alert('Error deleting deal');
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    try {
+      await deleteDeal(id);
+      toast.success('Deal deleted successfully');
+      await fetchDeals();
+    } catch (error) {
+      console.error("Error deleting deal:", error);
+      toast.error('Error deleting deal');
+    } finally {
+      setLoading(false);
+      setShowDeleteConfirm(null);
     }
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter Admin Password"
-            className="w-full p-3 border rounded-lg mb-4"
-            required
-          />
-          <button type="submit" className="w-full bg-primary text-white p-3 rounded-lg font-bold">
-            Login
-          </button>
-        </form>
+      <div className="min-h-screen bg-bg-main flex items-center justify-center p-6">
+        <div className="card-premium p-10 bg-white border border-border-main max-w-md w-full shadow-2xl space-y-8">
+          <div className="text-center space-y-4">
+            <div className="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+              <Lock size={40} />
+            </div>
+            <h2 className="text-3xl font-bold text-text-main">Admin Login</h2>
+            <p className="text-text-muted font-medium">Please enter your password to manage deals.</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-text-main ml-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all text-lg font-mono"
+                required
+              />
+            </div>
+            <button type="submit" className="btn-tactile btn-primary w-full py-4 text-lg shadow-lg shadow-primary/20">
+              Access Dashboard
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Manage Deals</h1>
+    <div className="min-h-screen bg-bg-main p-6 md:p-12">
+      <div className="max-w-7xl mx-auto space-y-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-text-main">Manage Deals</h1>
+            <p className="text-text-muted text-lg font-medium">Add, edit, or remove exclusive offers for seniors.</p>
+          </div>
           <button 
             onClick={() => window.location.href = '/'}
-            className="text-primary font-bold hover:underline"
+            className="btn-tactile bg-white border border-border-main text-text-main px-6 py-3 rounded-2xl flex items-center gap-3 font-bold hover:shadow-md transition-all"
           >
+            <ArrowLeft size={20} />
             Back to App
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Form Section */}
-          <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit">
-            <h2 className="text-xl font-bold mb-4">{editingDeal ? 'Edit Deal' : 'Add New Deal'}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title <span className="text-red-500">*</span>
-                </label>
-                <input type="text" name="title" value={formData.title} onChange={handleInputChange} required className="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Store/Brand Name</label>
-                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-2 border rounded" rows={3} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
-                  <input type="number" step="0.01" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} className="w-full p-2 border rounded" />
+          <div className="lg:col-span-5 space-y-6">
+            <div className="card-premium p-8 bg-white border border-border-main shadow-lg sticky top-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-primary/10 text-primary rounded-xl">
+                  {editingDeal ? <Edit2 size={24} /> : <Plus size={24} />}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price</label>
-                  <input type="number" step="0.01" name="salePrice" value={formData.salePrice} onChange={handleInputChange} className="w-full p-2 border rounded" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} className="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Affiliate Link <span className="text-red-500">*</span>
-                </label>
-                <input type="url" name="affiliateLink" value={formData.affiliateLink} onChange={handleInputChange} required className="w-full p-2 border rounded" />
+                <h2 className="text-2xl font-bold text-text-main">{editingDeal ? 'Edit Deal' : 'Add New Deal'}</h2>
               </div>
               
-              <div className="flex gap-2 pt-4">
-                <button type="submit" disabled={loading} className="flex-1 bg-primary text-white p-2 rounded font-bold hover:bg-primary/90 disabled:opacity-50">
-                  {loading ? 'Saving...' : (editingDeal ? 'Update Deal' : 'Add Deal')}
-                </button>
-                {editingDeal && (
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setEditingDeal(null);
-                      setFormData({ title: '', storeName: '', description: '', originalPrice: '', salePrice: '', imageUrl: '', affiliateLink: '' });
-                    }}
-                    className="bg-gray-200 text-gray-800 p-2 rounded font-bold hover:bg-gray-300"
-                  >
-                    Cancel
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                    <Tag size={14} /> Title <span className="text-rose-500">*</span>
+                  </label>
+                  <input type="text" name="title" value={formData.title} onChange={handleInputChange} required className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="e.g., 20% Off Senior Discount" />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                    <ShoppingBag size={14} /> Store/Brand Name
+                  </label>
+                  <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="e.g., CVS Pharmacy" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-text-main ml-1">Description</label>
+                  <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" rows={3} placeholder="Tell us more about this deal..." />
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-text-main ml-1">Original Price ($)</label>
+                    <input type="number" step="0.01" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="0.00" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-text-main ml-1">Sale Price ($)</label>
+                    <input type="number" step="0.01" name="salePrice" value={formData.salePrice} onChange={handleInputChange} className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="0.00" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                    <ImageIcon size={14} /> Image URL
+                  </label>
+                  <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="https://..." />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+                    <LinkIcon size={14} /> Affiliate Link <span className="text-rose-500">*</span>
+                  </label>
+                  <input type="url" name="affiliateLink" value={formData.affiliateLink} onChange={handleInputChange} required className="w-full p-4 bg-bg-main border border-border-main rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="https://..." />
+                </div>
+                
+                <div className="flex gap-4 pt-4">
+                  <button type="submit" disabled={loading} className="btn-tactile btn-primary flex-1 py-4 text-lg shadow-lg shadow-primary/20 flex items-center justify-center gap-3">
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                    {editingDeal ? 'Update Deal' : 'Publish Deal'}
                   </button>
-                )}
-              </div>
-            </form>
+                  {editingDeal && (
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setEditingDeal(null);
+                        setFormData({ title: '', storeName: '', description: '', originalPrice: '', salePrice: '', imageUrl: '', affiliateLink: '' });
+                      }}
+                      className="btn-tactile bg-bg-main text-text-main px-6 py-4 rounded-2xl font-bold border border-border-main hover:bg-white transition-all"
+                    >
+                      <X size={24} />
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
 
           {/* List Section */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-bold mb-4">Current Deals ({deals.length})</h2>
+          <div className="lg:col-span-7 space-y-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-text-main">Current Deals ({deals.length})</h2>
+              <button onClick={fetchDeals} className="p-2 text-primary hover:bg-primary/5 rounded-xl transition-all">
+                <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+              </button>
+            </div>
+
             {loading && deals.length === 0 ? (
-              <p>Loading deals...</p>
+              <div className="card-premium p-20 bg-white border border-border-main flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="animate-spin text-primary" size={40} />
+                <p className="text-text-muted font-medium">Loading your deals...</p>
+              </div>
+            ) : deals.length === 0 ? (
+              <div className="card-premium p-20 bg-white border border-border-main flex flex-col items-center justify-center space-y-6 text-center">
+                <div className="w-20 h-20 bg-bg-main text-text-muted rounded-full flex items-center justify-center">
+                  <ShoppingBag size={40} />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-text-main">No deals found</h3>
+                  <p className="text-text-muted font-medium max-w-xs">Start by adding your first exclusive offer using the form on the left.</p>
+                </div>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {deals.map(deal => (
-                  <div key={deal.id} className="bg-white p-4 rounded-xl shadow-sm border flex flex-col">
-                    <div className="flex gap-4 mb-3">
+                  <div key={deal.id} className="card-premium bg-white border border-border-main overflow-hidden flex flex-col group hover:shadow-xl transition-all">
+                    <div className="relative h-48 bg-bg-main overflow-hidden">
                       {deal.imageUrl ? (
-                        <img src={deal.imageUrl} alt={deal.title} className="w-20 h-20 object-cover rounded" />
+                        <img src={deal.imageUrl} alt={deal.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
                       ) : (
-                        <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-2xl">🛍️</div>
+                        <div className="w-full h-full flex items-center justify-center text-text-muted/20">
+                          <ShoppingBag size={60} />
+                        </div>
                       )}
-                      <div>
-                        <h3 className="font-bold line-clamp-1">{deal.title}</h3>
-                        <p className="text-sm text-gray-500">{deal.storeName || 'No Store'}</p>
-                        <div className="mt-1">
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-primary shadow-sm">
+                          {deal.storeName || 'Exclusive'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6 space-y-4 flex-1 flex flex-col">
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-text-main text-lg leading-tight line-clamp-2">{deal.title}</h3>
+                        <div className="flex items-center gap-3">
                           {deal.salePrice != null && (
-                            <span className="text-emerald-600 font-bold">${deal.salePrice}</span>
+                            <span className="text-primary font-black text-xl">${deal.salePrice}</span>
                           )}
                           {deal.originalPrice != null && (
-                            <span className="text-gray-400 line-through text-sm ml-2">${deal.originalPrice}</span>
+                            <span className="text-text-muted line-through text-sm font-medium">${deal.originalPrice}</span>
                           )}
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-auto flex gap-2 pt-3 border-t">
-                      <button onClick={() => handleEdit(deal)} className="flex-1 bg-blue-50 text-blue-600 py-1 rounded font-medium hover:bg-blue-100">Edit</button>
-                      <button onClick={() => deal.id && handleDelete(deal.id)} className="flex-1 bg-red-50 text-red-600 py-1 rounded font-medium hover:bg-red-100">Delete</button>
+
+                      <div className="pt-4 border-t border-border-main flex gap-3 mt-auto">
+                        <button 
+                          onClick={() => handleEdit(deal)} 
+                          className="flex-1 bg-bg-main text-text-main py-3 rounded-xl font-bold border border-border-main hover:bg-white hover:shadow-sm transition-all flex items-center justify-center gap-2"
+                        >
+                          <Edit2 size={16} />
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => deal.id && setShowDeleteConfirm(deal.id)} 
+                          className="flex-1 bg-rose-50 text-rose-600 py-3 rounded-xl font-bold border border-rose-100 hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -246,6 +346,36 @@ const Admin: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="card-premium p-8 bg-white border border-border-main max-w-sm w-full shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto">
+              <AlertCircle size={32} />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-bold text-text-main">Delete this deal?</h3>
+              <p className="text-text-muted font-medium">This action cannot be undone. Are you sure you want to proceed?</p>
+            </div>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 py-4 bg-bg-main text-text-main rounded-2xl font-bold border border-border-main hover:bg-white transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDelete(showDeleteConfirm)}
+                disabled={loading}
+                className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
