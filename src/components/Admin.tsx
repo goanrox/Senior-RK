@@ -29,7 +29,7 @@ const Admin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
